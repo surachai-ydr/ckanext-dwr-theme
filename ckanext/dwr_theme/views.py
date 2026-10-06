@@ -26,7 +26,12 @@ def index():
     )
 
 
+def privacy_policy():
+    return tk.render("dwr_theme/privacy_policy.html")
+
+
 dwr_theme.add_url_rule("/dwr-theme", view_func=index, methods=["GET", "POST"])
+dwr_theme.add_url_rule("/privacy-policy", view_func=privacy_policy)
 
 
 def get_blueprints():

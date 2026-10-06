@@ -1,0 +1,81 @@
+{#
+  One dataset in a search result list (/dataset, organization and group pages).
+  Replaces CKAN's core snippets/package_item.html and accepts the same
+  parameters, so core templates can keep calling it unchanged.
+
+  package         - dataset dict as returned by package_search
+  item_class      - CSS class for the <li> (default: dataset-item)
+  truncate        - max length of the description (default: 180)
+  truncate_title  - max length of the title (default: 80)
+  hide_resources  - true to hide the format pills
+  banner          - true to show a "Popular" badge
+
+  Each part is its own block, so a child template can override just one.
+#}
+{% import 'dwr_theme/macros/icons.html' as icons %}
+{% set truncate = truncate or 180 %}
+{% set truncate_title = truncate_title or 80 %}
+{% set title = package.title or package.name %}
+{% set notes = h.markdown_extract(h.get_translated(package, 'notes'), extract_length=truncate) %}
+{% set url = h.url_for(package.type ~ '.read', id=package.name) %}
+
+{% block package_item %}
+  <li class="{{ item_class or 'dataset-item' }}">
+    {% block content %}
+      <div class="dataset-content">
+        {% block organization %}
+          {% if package.organization %}
+            <div class="dwr-card__eyebrow">{{ package.organization.title or package.organization.name }}</div>
+          {% endif %}
+        {% endblock %}
+
+        {% block heading %}
+          <h3 class="dataset-heading">
+            {% if package.private %}
+              <span class="dataset-private badge bg-secondary">{{ _('Private') }}</span>
+            {% endif %}
+            {% if package.state == 'draft' %}
+              <span class="badge bg-info">{{ _('Draft') }}</span>
+            {% elif package.state == 'deleted' %}
+              <span class="badge bg-danger">{{ _('Deleted') }}</span>
+            {% endif %}
+            <a href="{{ url }}" title="{{ title }}">{{ h.truncate(title, truncate_title) }}</a>
+            {% if banner %}
+              <span class="banner">{{ _('Popular') }}</span>
+            {% endif %}
+          </h3>
+        {% endblock %}
+
+        {% block notes %}
+          <p>{{ notes | urlize if notes else _('No description provided.') }}</p>
+        {% endblock %}
+
+      </div>
+
+      {% block meta %}
+        <div class="dwr-card__footer">
+          {% block resources %}
+            {% if package.resources and not hide_resources %}
+              <ul class="dataset-resources">
+                {% for format in h.dict_list_reduce(package.resources, 'format') %}
+                  <li>
+                    <a href="{{ url }}" class="badge" data-format="{{ format | lower }}">{{ format }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <span></span>
+            {% endif %}
+          {% endblock %}
+
+          {% block date %}
+            <span class="dwr-card__date">
+              {{ icons.icon('clock') }}
+              <time datetime="{{ package.metadata_modified }}">{{ h.render_datetime(package.metadata_modified) }}</time>
+            </span>
+          {% endblock %}
+        </div>
+      {% endblock %}
+    {% endblock %}
+  </li>
+{% endblock %}

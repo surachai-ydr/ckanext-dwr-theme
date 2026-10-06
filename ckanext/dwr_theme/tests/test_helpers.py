@@ -47,3 +47,24 @@ def test_palette_derives_shades():
 ])
 def test_initials(name, initials):
     assert helpers.dwr_theme_initials(name) == initials
+
+
+@pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
+@pytest.mark.usefixtures("with_plugins")
+class TestHomeModal:
+    def test_disabled_by_default(self):
+        assert helpers.dwr_theme_home_modal() is None
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal", "true")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_title", "Notice")
+    def test_enabled(self):
+        modal = helpers.dwr_theme_home_modal()
+        assert modal["title"] == "Notice"
+        assert modal["text"] == ""
+        assert len(modal["key"]) == 12
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal", "true")
+    def test_key_changes_with_content(self, ckan_config, monkeypatch):
+        before = helpers.dwr_theme_home_modal()["key"]
+        monkeypatch.setitem(ckan_config, "ckanext.dwr_theme.home_modal_text", "New")
+        assert helpers.dwr_theme_home_modal()["key"] != before

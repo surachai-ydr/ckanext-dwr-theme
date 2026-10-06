@@ -1,0 +1,28 @@
+{% extends "page.html" %}
+
+{#
+  /privacy-policy. The policy text lives in one template per language,
+  dwr_theme/privacy_policy/<lang>.html, falling back to English. To change
+  the wording, edit those files (have the final text reviewed for PDPA
+  compliance), or set ckanext.dwr_theme.privacy_policy_url to link the
+  footer to an existing policy elsewhere.
+#}
+
+{% block subtitle %}{{ _('Privacy Policy') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('Privacy Policy'), named_route='dwr_theme.privacy_policy' %}</li>
+{% endblock %}
+
+{% block primary %}
+  <article class="module dwr-policy" role="main">
+    <div class="module-content">
+      <h1 class="page-heading">{{ _('Privacy Policy') }}</h1>
+      {% block policy %}
+        {% include ['dwr_theme/privacy_policy/' ~ h.lang() ~ '.html', 'dwr_theme/privacy_policy/en.html'] %}
+      {% endblock %}
+    </div>
+  </article>
+{% endblock %}
+
+{% block secondary %}{% endblock %}

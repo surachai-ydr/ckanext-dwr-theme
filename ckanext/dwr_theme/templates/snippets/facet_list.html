@@ -1,0 +1,83 @@
+{#
+  One filter in the search sidebar (/dataset, organization and group pages),
+  as a collapsible <details> section. It starts open when one of its values is
+  selected or the visitor asked for more/fewer values; otherwise collapsed.
+
+  Replaces CKAN's core snippets/facet_list.html with dwr-facet* markup, so the
+  theme's CSS doesn't have to out-rank core's .module-narrow .nav-item rules.
+  Parameters and block names match core, so callers and other extensions that
+  extend this snippet keep working.
+
+  name            - facet field name, e.g. "tags"
+  title           - heading, e.g. "Tags"
+  label_function  - optional callable(facet_item) returning the label
+  if_empty        - optional text shown when there are no items
+  count_label     - optional callable(count) returning the count text
+  extras          - extra params for the add/remove URLs
+  alternative_url - URL to build links on instead of the current one
+  hide_empty      - true to hide the box when there are no items
+  search_facets   - search facets dict
+#}
+{% import 'dwr_theme/macros/icons.html' as icons %}
+{% block facet_list %}
+  {% set hide_empty = hide_empty or false %}
+  {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+    {% if items or not hide_empty %}
+      {% block facet_list_item %}
+        {# Blocks can't see the outer with's variables, so look the items up again. #}
+        {% set active_count = (items or h.get_facet_items_dict(name, search_facets)) | selectattr('active') | list | length %}
+        {% set expanded = active_count or request.args.get('_%s_limit' % name) is not none %}
+        <details class="dwr-facet"{% if expanded %} open{% endif %}>
+          {% block facet_list_heading %}
+            {% set active_count = (items or h.get_facet_items_dict(name, search_facets)) | selectattr('active') | list | length %}
+            <summary class="dwr-facet__title">
+              <span>{{ title }}</span>
+              {% if active_count %}
+                <span class="dwr-facet__active" title="{{ _('Selected') }}">{{ active_count }}</span>
+              {% endif %}
+              {{ icons.icon('chevron-down') }}
+            </summary>
+          {% endblock %}
+
+          {% block facet_list_items %}
+            {# Blocks can't see the outer with's variables, so look the items up again (as core does). #}
+            {% with items = items or h.get_facet_items_dict(name, search_facets) %}
+            {% if items %}
+              <nav class="dwr-facet__body" aria-label="{{ title }}">
+                <ul class="dwr-facet__list">
+                  {% for item in items %}
+                    {% set href = h.remove_url_param(name, item.name, extras=extras, alternative_url=alternative_url) if item.active else h.add_url_param(new_params={name: item.name}, extras=extras, alternative_url=alternative_url) %}
+                    {% set label = label_function(item) if label_function else item.display_name %}
+                    {% set count = count_label(item['count']) if count_label else ('%d' % item['count']) %}
+                    <li>
+                      <a class="dwr-facet__link{% if item.active %} is-active{% endif %}" href="{{ href }}" title="{{ label }}"{% if item.active %} aria-current="true"{% endif %}>
+                        <span class="dwr-facet__label">{{ label }}</span>
+                        <span class="dwr-facet__count">{{ count }}</span>
+                        {% if item.active %}
+                          <span class="dwr-facet__remove" aria-hidden="true">&times;</span>
+                        {% endif %}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </nav>
+
+              {% block facet_list_footer %}
+                {% if h.get_param_int('_%s_limit' % name) %}
+                  {% if h.has_more_facets(name, search_facets) %}
+                    <a class="dwr-facet__more" href="{{ h.remove_url_param('_%s_limit' % name, replace=0, extras=extras, alternative_url=alternative_url) }}">{{ _('Show More {facet_type}').format(facet_type=title) }}</a>
+                  {% endif %}
+                {% else %}
+                  <a class="dwr-facet__more" href="{{ h.remove_url_param('_%s_limit' % name, extras=extras, alternative_url=alternative_url) }}">{{ _('Show Only Popular {facet_type}').format(facet_type=title) }}</a>
+                {% endif %}
+              {% endblock %}
+            {% else %}
+              <p class="dwr-facet__empty">{{ if_empty or _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
+            {% endif %}
+            {% endwith %}
+          {% endblock %}
+        </details>
+      {% endblock %}
+    {% endif %}
+  {% endwith %}
+{% endblock %}

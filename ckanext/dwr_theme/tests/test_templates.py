@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from ckan.tests import factories
@@ -33,3 +35,58 @@ class TestTheme:
         body = app.get("/").body
 
         assert "DWR Open Data" in body
+
+    def test_font_size_control(self, app):
+        body = app.get("/").body
+
+        assert 'data-module="dwr-theme-font-size"' in body
+        assert 'data-dwr-font-size' in body
+
+    def test_footer_links_privacy_policy(self, app):
+        body = app.get("/").body
+
+        assert 'href="/privacy-policy"' in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.privacy_policy_url", "https://example.com/privacy")
+    def test_footer_privacy_policy_url_configurable(self, app):
+        body = app.get("/").body
+
+        assert 'href="https://example.com/privacy"' in body
+
+    def test_home_modal_off_by_default(self, app):
+        body = app.get("/").body
+
+        assert "dwr-theme-home-modal" not in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal", "true")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_title", "Maintenance notice")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_text", "Down **Sunday**")
+    def test_home_modal_enabled(self, app):
+        body = app.get("/").body
+
+        assert 'data-module="dwr-theme-home-modal"' in body
+        assert "Maintenance notice" in body
+        assert "<strong>Sunday</strong>" in body
+
+    def test_search_sidebar_facets(self, app):
+        factories.Dataset(resources=[
+            {"url": "http://example.com/a.csv", "format": "CSV"},
+            {"url": "http://example.com/b.json", "format": "JSON"},
+        ])
+
+        body = app.get("/dataset/", query_string={"res_format": "CSV"}).body
+
+        assert body.count('<details class="dwr-facet" open>') == 1  # only Formats, which has a selection
+        assert 'class="dwr-facet__active" title="Selected">1<' in body
+        assert re.search(r'class="dwr-facet__link is-active"[^>]*title="CSV"', body)
+        assert 'title="JSON"' in body
+
+    @pytest.mark.ckan_config("ckan.datasets_per_page", 2)
+    def test_search_pagination(self, app):
+        for _ in range(3):
+            factories.Dataset()
+
+        body = app.get("/dataset/").body
+
+        assert 'class="pagination-wrapper"' in body
+        assert 'href="/dataset/?page=2"' in body

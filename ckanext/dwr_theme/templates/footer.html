@@ -45,8 +45,12 @@
 
     {% block footer_attribution %}
       <div class="dwr-footer__bottom">
-        <span>&copy; {{ h.dwr_theme_current_year() }} {{ g.site_title }}</span>
-        <span>{{ _('Powered by') }} <a href="https://ckan.org" target="_blank" rel="noopener">CKAN</a></span>
+        <span>
+          &copy; {{ h.dwr_theme_current_year() }} {{ g.site_title }}
+          <span aria-hidden="true">&middot;</span>
+          <a href="{{ h.dwr_theme_privacy_policy_url() }}">{{ _('Privacy Policy') }}</a>
+        </span>
+        <span>{{ _('Powered by') }} <a href="https://ckan.org" target="_blank" rel="noopener">DWR Information and Research</a></span>
       </div>
     {% endblock %}
   </div>

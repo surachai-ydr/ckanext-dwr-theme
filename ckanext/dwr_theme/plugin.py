@@ -4,6 +4,7 @@ from typing import Any
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
+from ckan.lib.plugins import DefaultTranslation
 
 from ckanext.dwr_theme import cli, helpers, views
 from ckanext.dwr_theme.logic import action, auth, validators
@@ -11,7 +12,7 @@ from ckanext.dwr_theme.logic import action, auth, validators
 
 # Loads the options declared in config_declaration.yaml (CKAN 2.10+)
 @tk.blanket.config_declarations
-class DwrThemePlugin(plugins.SingletonPlugin):
+class DwrThemePlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
@@ -19,6 +20,7 @@ class DwrThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.IClick)
+    plugins.implements(plugins.ITranslation)
 
     # IConfigurer
 

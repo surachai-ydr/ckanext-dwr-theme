@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import hashlib
 import logging
 import re
 from typing import Any, Callable
@@ -90,7 +91,32 @@ def dwr_theme_current_year() -> int:
     return datetime.date.today().year
 
 
+def dwr_theme_privacy_policy_url() -> str:
+    """Configured external privacy policy, or the built-in page."""
+    return (tk.config.get("ckanext.dwr_theme.privacy_policy_url") or "").strip() or tk.url_for(
+        "dwr_theme.privacy_policy"
+    )
+
+
 # Homepage content
+
+
+def dwr_theme_home_modal() -> dict[str, str] | None:
+    """Homepage dialog settings, or None when ``ckanext.dwr_theme.home_modal`` is off.
+
+    Empty title/text fall back to translated defaults in the template. ``key``
+    changes whenever the content does, so a visitor's "Don't show this again"
+    only applies to the content they dismissed.
+    """
+    if not tk.asbool(tk.config.get("ckanext.dwr_theme.home_modal")):
+        return None
+    modal = {
+        field: (tk.config.get(f"ckanext.dwr_theme.home_modal_{field}") or "").strip()
+        for field in ("title", "text", "image", "link_url", "link_text")
+    }
+    content = "\n".join(modal[field] for field in sorted(modal))
+    modal["key"] = hashlib.sha1(content.encode("utf-8")).hexdigest()[:12]
+    return modal
 
 
 def dwr_theme_recent_datasets(limit: int | None = None) -> list[dict[str, Any]]:
@@ -146,6 +172,8 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_web_fonts": dwr_theme_web_fonts,
         "dwr_theme_hero": dwr_theme_hero,
         "dwr_theme_current_year": dwr_theme_current_year,
+        "dwr_theme_privacy_policy_url": dwr_theme_privacy_policy_url,
+        "dwr_theme_home_modal": dwr_theme_home_modal,
         "dwr_theme_recent_datasets": dwr_theme_recent_datasets,
         "dwr_theme_popular_tags": dwr_theme_popular_tags,
         "dwr_theme_featured_organizations": dwr_theme_featured_organizations,

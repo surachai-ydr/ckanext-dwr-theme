@@ -41,3 +41,35 @@ groups:
         description: |
           Load Inter and Noto Sans Thai from Google Fonts. Disable on servers
           without internet access (system fonts are used instead).
+
+  - annotation: ckanext-dwr-theme privacy policy
+    options:
+      - key: ckanext.dwr_theme.privacy_policy_url
+        description: |
+          Link the footer's "Privacy Policy" to this URL instead of the built-in
+          /privacy-policy page (e.g. an existing policy on the agency website).
+        example: https://www.dwr.go.th/privacy-policy
+
+  - annotation: ckanext-dwr-theme homepage modal
+    options:
+      - key: ckanext.dwr_theme.home_modal
+        type: bool
+        default: false
+        description: |
+          Show a welcome/announcement dialog when the homepage is opened. It is
+          shown once per browser session; visitors can tick "Don't show this
+          again", which lasts until the dialog's content changes.
+      - key: ckanext.dwr_theme.home_modal_title
+        description: Dialog heading. Defaults to a translated welcome message.
+        example: ประกาศ
+      - key: ckanext.dwr_theme.home_modal_text
+        description: Dialog body as Markdown. Defaults to a translated introduction.
+      - key: ckanext.dwr_theme.home_modal_image
+        description: Optional image URL shown at the top of the dialog.
+        example: /images/announcement.jpg
+      - key: ckanext.dwr_theme.home_modal_link_url
+        description: Optional URL for a call-to-action button in the dialog.
+        example: /dataset
+      - key: ckanext.dwr_theme.home_modal_link_text
+        description: Label of the call-to-action button.
+        example: Browse datasets

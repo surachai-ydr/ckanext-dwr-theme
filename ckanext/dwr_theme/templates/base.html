@@ -3,6 +3,8 @@
 {% block meta %}
   {{ super() }}
   <meta name="theme-color" content="{{ h.dwr_theme_primary_color() }}">
+  {# Apply the visitor's saved text size before first paint (see dwr-theme-font-size). #}
+  <script>try{var s=localStorage.getItem("dwr-font-size");if(s==="lg"||s==="xl")document.documentElement.setAttribute("data-dwr-font-size",s);}catch(e){}</script>
 {% endblock %}
 
 {% block styles %}

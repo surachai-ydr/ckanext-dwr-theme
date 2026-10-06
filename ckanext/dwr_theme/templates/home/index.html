@@ -31,9 +31,10 @@
         <div class="dwr-container">
           <div class="dwr-hero__inner">
             <span class="dwr-hero__eyebrow">{{ icons.icon('droplet') }} {{ _('Open Data Portal') }}</span>
-            <h1>{{ hero.title or g.site_title }}</h1>
+            <!-- {{ hero.title or g.site_title }} -->
+            <h1>{{ _('Data Catalog System') }}</h1>
             <p class="dwr-hero__subtitle">
-              {{ hero.subtitle or g.site_description or _('Discover, explore and download datasets published by our organizations.') }}
+              {{ hero.subtitle or g.site_description or _('Department of Water Resources, Ministry of Natural Resources and Environment') }}
             </p>
 
             <form class="dwr-hero-search" action="{{ h.url_for('dataset.search') }}" method="get" role="search">
@@ -152,6 +153,42 @@
           </div>
         </div>
       </section>
+    {% endblock %}
+
+    {% block dwr_modal %}
+      {% set modal = h.dwr_theme_home_modal() %}
+      {% if modal %}
+        {# Opened by the dwr-theme-home-modal JS module; without JS it stays hidden. #}
+        <dialog class="dwr-modal" aria-labelledby="dwr-modal-title" data-module="dwr-theme-home-modal" data-module-key="{{ modal.key }}">
+          <form method="dialog" class="dwr-modal__inner">
+            <button class="dwr-modal__close" type="submit" aria-label="{{ _('Close') }}">&times;</button>
+            {% if modal.image %}
+              <img class="dwr-modal__image" src="{{ h.url_for_static_or_external(modal.image) }}" alt="">
+            {% endif %}
+            <div class="dwr-modal__body">
+              <h2 id="dwr-modal-title">{{ modal.title or _('Welcome to the Data Catalog System') }}</h2>
+              <div class="dwr-modal__text">
+                {% if modal.text %}
+                  {{ h.render_markdown(modal.text) }}
+                {% else %}
+                  <p>{{ _('Search, preview and download open data published by the Department of Water Resources. All datasets are free to use.') }}</p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="dwr-modal__footer">
+              <label class="dwr-modal__dismiss">
+                <input type="checkbox" name="dismiss"> {{ _("Don't show this again") }}
+              </label>
+              <div class="dwr-modal__actions">
+                {% if modal.link_url %}
+                  <a class="dwr-btn dwr-btn--ghost" href="{{ h.url_for_static_or_external(modal.link_url) }}">{{ modal.link_text or _('Learn more') }}</a>
+                {% endif %}
+                <button class="dwr-btn dwr-btn--primary" type="submit">{{ _('Got it') }}</button>
+              </div>
+            </div>
+          </form>
+        </dialog>
+      {% endif %}
     {% endblock %}
 
   </div>

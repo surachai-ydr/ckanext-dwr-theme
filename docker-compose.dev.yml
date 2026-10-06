@@ -1,0 +1,74 @@
+# Run a local CKAN site with this theme enabled, at http://localhost:5000
+#
+#   docker compose -f docker-compose.dev.yml up
+#   docker compose -f docker-compose.dev.yml down
+#
+# Log in as admin / admin123456. Template and asset changes show on refresh;
+# restart the ckan service after Python changes:
+#
+#   docker compose -f docker-compose.dev.yml restart ckan
+services:
+  ckan:
+    image: ckan/ckan-dev:2.10
+    user: root
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/srv/app/src_extensions/ckanext-dwr-theme
+    environment:
+      CKAN_SITE_URL: http://localhost:5000
+      CKAN_SITE_ID: default
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
+      CKAN_STORAGE_PATH: /var/lib/ckan
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        cd /srv/app/src_extensions/ckanext-dwr-theme
+        pip install -q -r requirements.txt -e .
+        ckan config-tool $$CKAN_INI \
+          "ckan.plugins = activity image_view text_view datatables_view dwr-theme" \
+          "ckan.site_url = http://localhost:5000" \
+          "debug = true" \
+          "ckan.locale_default = th" \
+          "ckan.locales_offered = th en" \
+          "ckanext.dwr_theme.home_modal = true" \
+          "beaker.session.secret = dev-secret" \
+          "WTF_CSRF_SECRET_KEY = dev-secret" \
+          "api_token.jwt.encode.secret = string:dev-secret" \
+          "api_token.jwt.decode.secret = string:dev-secret"
+        ckan -c $$CKAN_INI db upgrade
+        ckan -c $$CKAN_INI user show admin | grep -q "name=admin" ||
+          ckan -c $$CKAN_INI user add admin password=admin123456 email=admin@localhost
+        ckan -c $$CKAN_INI sysadmin add admin
+        exec ckan -c $$CKAN_INI run -H 0.0.0.0 -p 5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      solr:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  solr:
+    image: ckan/ckan-solr:2.10-solr9
+
+  redis:
+    image: redis:7
+
+  postgres:
+    image: ckan/ckan-postgres-dev:2.10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

@@ -53,6 +53,20 @@
         </form>
       {% endblock %}
 
+      {% block header_font_size %}
+        {# Sizes match [data-dwr-font-size] in theme.css; the saved choice is
+           applied in base.html before the page renders. #}
+        {% set letter = 'ก' if h.lang() == 'th' else 'A' %}
+        <div class="dwr-font-size" role="group" aria-label="{{ _('Text size') }}" data-module="dwr-theme-font-size">
+          {% for size, label in [('md', _('Normal text')), ('lg', _('Large text')), ('xl', _('Extra large text'))] %}
+            <button type="button" class="dwr-font-size__btn dwr-font-size__btn--{{ size }}" data-size="{{ size }}"
+                    aria-pressed="{{ 'true' if size == 'md' else 'false' }}" title="{{ label }}">
+              <span aria-hidden="true">{{ letter }}</span><span class="dwr-sr-only">{{ label }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      {% endblock %}
+
       {% block header_account %}
         <div class="dwr-account">
           {% if current_user.is_authenticated %}

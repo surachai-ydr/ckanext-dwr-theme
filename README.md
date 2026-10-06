@@ -118,6 +118,20 @@ List all declared options with:
 
 ## Tests
 
+### With Docker (no local CKAN needed)
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+This uses the same images as CI (CKAN 2.10, PostgreSQL, Solr, Redis):
+
+    docker compose -f docker-compose.test.yml run --rm ckan
+    docker compose -f docker-compose.test.yml down
+
+Any extra arguments are passed to pytest:
+
+    docker compose -f docker-compose.test.yml run --rm ckan ckanext/dwr_theme/tests/test_helpers.py -k primary
+
+### Inside an existing CKAN install
+
 `test.ini` expects CKAN's source to be a sibling directory (`../ckan/test-core.ini`);
 adjust the `use = config:` line if yours lives elsewhere. Then:
 

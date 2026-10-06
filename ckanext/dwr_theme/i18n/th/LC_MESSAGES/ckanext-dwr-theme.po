@@ -1,0 +1,314 @@
+# Thai translations for ckanext-dwr-theme.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the ckanext-dwr-theme
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-dwr-theme 0.0.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-06 15:11+0000\n"
+"PO-Revision-Date: 2026-10-06 14:04+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: th\n"
+"Language-Team: th <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: ckanext/dwr_theme/logic/validators.py:10
+msgid "Must not contain digits"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:13
+msgid "An open data portal powered by CKAN."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:18
+#: ckanext/dwr_theme/templates/footer.html:19
+msgid "Explore"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:39
+#: ckanext/dwr_theme/templates/footer.html:21
+#: ckanext/dwr_theme/templates/header.html:38
+#: ckanext/dwr_theme/templates/home/index.html:68
+msgid "Datasets"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:22
+#: ckanext/dwr_theme/templates/header.html:39
+#: ckanext/dwr_theme/templates/home/index.html:69
+#: ckanext/dwr_theme/templates/home/index.html:122
+msgid "Organizations"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:23
+#: ckanext/dwr_theme/templates/header.html:40
+#: ckanext/dwr_theme/templates/home/index.html:70
+msgid "Groups"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:24
+#: ckanext/dwr_theme/templates/header.html:41
+msgid "About"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:28
+#: ckanext/dwr_theme/templates/footer.html:29
+msgid "Developers"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:31
+msgid "Action API"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:32
+#: ckanext/dwr_theme/templates/home/index.html:150
+msgid "API documentation"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:40
+msgid "Language"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/privacy_policy.html:11
+#: ckanext/dwr_theme/templates/dwr_theme/privacy_policy.html:14
+#: ckanext/dwr_theme/templates/dwr_theme/privacy_policy.html:20
+#: ckanext/dwr_theme/templates/footer.html:51
+msgid "Privacy Policy"
+msgstr "นโยบายความเป็นส่วนตัว"
+
+#: ckanext/dwr_theme/templates/footer.html:53
+msgid "Powered by"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:28
+msgid "Toggle navigation"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:34
+msgid "Main navigation"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:51
+#: ckanext/dwr_theme/templates/home/index.html:42
+msgid "Search datasets"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:52
+msgid "Search datasets..."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:60
+msgid "Text size"
+msgstr "ขนาดตัวอักษร"
+
+#: ckanext/dwr_theme/templates/header.html:61
+msgid "Normal text"
+msgstr "ตัวอักษรขนาดปกติ"
+
+#: ckanext/dwr_theme/templates/header.html:61
+msgid "Large text"
+msgstr "ตัวอักษรขนาดใหญ่"
+
+#: ckanext/dwr_theme/templates/header.html:61
+msgid "Extra large text"
+msgstr "ตัวอักษรขนาดใหญ่พิเศษ"
+
+#: ckanext/dwr_theme/templates/header.html:82
+msgid "Sysadmin settings"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:84
+msgid "My profile"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:85
+msgid "Profile settings"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:87
+msgid "Log out"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:93
+msgid "Log in"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/header.html:95
+msgid "Register"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:4
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:7
+msgid "Theme"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:13
+msgid "ckanext-dwr-theme demo"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:21
+msgid "Your name"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:23
+msgid "Say hello"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:27
+msgid "Or call the API from JavaScript:"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:30
+msgid "Greet via API"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/index.html:41
+msgid "Total datasets:"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/dataset_card.html:18
+#: ckanext/dwr_theme/templates/snippets/package_item.html:50
+msgid "No description provided."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/organization_card.html:19
+msgid "{num} dataset"
+msgid_plural "{num} datasets"
+msgstr[0] ""
+
+#: ckanext/dwr_theme/templates/home/index.html:4
+msgid "Welcome"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:33
+msgid "Open Data Portal"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:35
+msgid "Data Catalog System"
+msgstr "ระบบคลังข้อมูล"
+
+#: ckanext/dwr_theme/templates/home/index.html:37
+msgid ""
+"Department of Water Resources, Ministry of Natural Resources and "
+"Environment"
+msgstr "กรมทรัพยากรน้ำ กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม"
+
+#: ckanext/dwr_theme/templates/home/index.html:43
+msgid "What data are you looking for?"
+msgstr "ระบุข้อมูลที่คุณกำลังสนใจ?"
+
+#: ckanext/dwr_theme/templates/home/index.html:44
+msgid "Search"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:49
+msgid "Popular:"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:65
+msgid "Statistics"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:89
+msgid "Recently updated datasets"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:90
+msgid "The latest data published on the portal."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:93
+msgid "View all datasets"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:105
+msgid "No datasets have been published yet."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:107
+msgid "Add the first dataset"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:123
+msgid "Publishers sharing data on this portal."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:126
+msgid "View all organizations"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:144
+msgid "Build with our data"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:145
+msgid "Every dataset is also available as JSON through the CKAN Action API."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:164
+msgid "Close"
+msgstr "ปิด"
+
+#: ckanext/dwr_theme/templates/home/index.html:169
+msgid "Welcome to the Data Catalog System"
+msgstr "ยินดีต้อนรับสู่ระบบคลังข้อมูล"
+
+#: ckanext/dwr_theme/templates/home/index.html:174
+msgid ""
+"Search, preview and download open data published by the Department of "
+"Water Resources. All datasets are free to use."
+msgstr ""
+"ค้นหา ดูตัวอย่าง และดาวน์โหลดข้อมูลเปิดที่เผยแพร่โดยกรมทรัพยากรน้ำ "
+"ทุกชุดข้อมูลใช้งานได้โดยไม่มีค่าใช้จ่าย"
+
+#: ckanext/dwr_theme/templates/home/index.html:180
+msgid "Don't show this again"
+msgstr "ไม่ต้องแสดงอีก"
+
+#: ckanext/dwr_theme/templates/home/index.html:184
+msgid "Learn more"
+msgstr "ดูเพิ่มเติม"
+
+#: ckanext/dwr_theme/templates/home/index.html:186
+msgid "Got it"
+msgstr "รับทราบ"
+
+#: ckanext/dwr_theme/templates/snippets/facet_list.html:34
+msgid "Selected"
+msgstr "เลือกแล้ว"
+
+#: ckanext/dwr_theme/templates/snippets/facet_list.html:66
+msgid "Show More {facet_type}"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/facet_list.html:69
+msgid "Show Only Popular {facet_type}"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/facet_list.html:73
+msgid "There are no {facet_type} that match this search"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/package_item.html:35
+msgid "Private"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/package_item.html:38
+msgid "Draft"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/package_item.html:40
+msgid "Deleted"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/snippets/package_item.html:44
+msgid "Popular"
+msgstr ""
+

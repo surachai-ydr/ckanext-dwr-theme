@@ -1,9 +1,53 @@
-{% ckan_extends %}
+{# Replaces CKAN's footer.html entirely. #}
+{% import 'dwr_theme/macros/icons.html' as icons %}
 
-{% block footer_attribution %}
-  {{ super() }}
-  <p class="dwr-theme-footer-note">
-    {{ _('Customized with ckanext-dwr-theme') }} &middot;
-    <a href="{{ h.url_for('dwr_theme.index') }}">{{ _('Theme demo') }}</a>
-  </p>
-{% endblock %}
+<footer class="dwr-footer">
+  <div class="dwr-container">
+    <div class="dwr-footer__grid">
+      {% block footer_about %}
+        <div class="dwr-footer__about">
+          <a class="dwr-brand" href="{{ h.url_for('home.index') }}">
+            <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
+            <span class="dwr-brand__text"><span class="dwr-brand__title">{{ g.site_title }}</span></span>
+          </a>
+          <p>{{ g.site_description or _('An open data portal powered by CKAN.') }}</p>
+        </div>
+      {% endblock %}
+
+      {% block footer_links %}
+        <nav aria-label="{{ _('Explore') }}">
+          <h3>{{ _('Explore') }}</h3>
+          <ul>
+            <li><a href="{{ h.url_for('dataset.search') }}">{{ _('Datasets') }}</a></li>
+            <li><a href="{{ h.url_for('organization.index') }}">{{ _('Organizations') }}</a></li>
+            <li><a href="{{ h.url_for('group.index') }}">{{ _('Groups') }}</a></li>
+            <li><a href="{{ h.url_for('home.about') }}">{{ _('About') }}</a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="{{ _('Developers') }}">
+          <h3>{{ _('Developers') }}</h3>
+          <ul>
+            <li><a href="{{ h.url_for('api.action', ver=3, logic_function='package_list') }}">{{ _('Action API') }}</a></li>
+            <li><a href="https://docs.ckan.org/en/2.10/api/" target="_blank" rel="noopener">{{ _('API documentation') }}</a></li>
+            <li><a href="https://ckan.org" target="_blank" rel="noopener">CKAN</a></li>
+          </ul>
+        </nav>
+      {% endblock %}
+
+      {% block footer_lang %}
+        <div class="dwr-footer__lang">
+          <h3>{{ _('Language') }}</h3>
+          {% snippet "snippets/language_selector.html" %}
+        </div>
+      {% endblock %}
+    </div>
+
+    {% block footer_attribution %}
+      <div class="dwr-footer__bottom">
+        <span>&copy; {{ h.dwr_theme_current_year() }} {{ g.site_title }}</span>
+        <span>{{ _('Powered by') }} <a href="https://ckan.org" target="_blank" rel="noopener">CKAN</a></span>
+      </div>
+    {% endblock %}
+  </div>
+</footer>

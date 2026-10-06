@@ -1,0 +1,90 @@
+{#
+  Replaces CKAN's header.html entirely (no ckan_extends) so the markup does
+  not depend on Bootstrap 3 vs 5. Blocks keep CKAN's names where possible so
+  other extensions can still hook into them.
+#}
+{% import 'dwr_theme/macros/icons.html' as icons %}
+
+{% block header_wrapper %}
+<header class="dwr-header" data-module="dwr-theme-header">
+  <div class="dwr-container dwr-header__inner">
+
+    {% block header_logo %}
+      <a class="dwr-brand" href="{{ h.url_for('home.index') }}" title="{{ g.site_title }}">
+        {% if g.site_logo and 'ckan-logo' not in g.site_logo %}
+          <img class="dwr-brand__logo" src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}">
+        {% else %}
+          <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
+          <span class="dwr-brand__text">
+            <span class="dwr-brand__title">{{ g.site_title }}</span>
+            {% if g.site_description %}
+              <span class="dwr-brand__tagline">{{ g.site_description }}</span>
+            {% endif %}
+          </span>
+        {% endif %}
+      </a>
+    {% endblock %}
+
+    <button class="dwr-nav-toggle" type="button" aria-expanded="false" aria-controls="dwr-header-collapse" aria-label="{{ _('Toggle navigation') }}">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="dwr-header__collapse" id="dwr-header-collapse">
+      {% block header_site_navigation %}
+        <nav class="dwr-nav" aria-label="{{ _('Main navigation') }}">
+          <ul>
+            {% block header_site_navigation_tabs %}
+              {{ h.build_nav_main(
+                ('dataset.search', _('Datasets')),
+                ('organization.index', _('Organizations')),
+                ('group.index', _('Groups')),
+                ('home.about', _('About'))
+              ) }}
+            {% endblock %}
+          </ul>
+        </nav>
+      {% endblock %}
+
+      {% block header_site_search %}
+        <form class="dwr-header-search" action="{{ h.url_for('dataset.search') }}" method="get" role="search">
+          {{ icons.icon('search') }}
+          <label for="dwr-header-q" class="dwr-sr-only">{{ _('Search datasets') }}</label>
+          <input id="dwr-header-q" type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="{{ _('Search datasets...') }}" autocomplete="off">
+        </form>
+      {% endblock %}
+
+      {% block header_account %}
+        <div class="dwr-account">
+          {% if current_user.is_authenticated %}
+            <details class="dwr-user-menu">
+              <summary>
+                {{ h.user_image(current_user.id, size=32) }}
+                <span class="dwr-user-menu__name">{{ current_user.display_name }}</span>
+                {{ icons.icon('chevron-down') }}
+              </summary>
+              <ul>
+                {% block header_account_logged %}
+                  {% if current_user.sysadmin %}
+                    <li><a href="{{ h.url_for('admin.index') }}">{{ _('Sysadmin settings') }}</a></li>
+                  {% endif %}
+                  <li><a href="{{ h.url_for('user.read', id=current_user.name) }}">{{ _('My profile') }}</a></li>
+                  <li><a href="{{ h.url_for('user.edit', id=current_user.name) }}">{{ _('Profile settings') }}</a></li>
+                  <li class="dwr-divider" role="separator"></li>
+                  <li><a href="{{ h.url_for('user.logout') }}">{{ _('Log out') }}</a></li>
+                {% endblock %}
+              </ul>
+            </details>
+          {% else %}
+            {% block header_account_notlogged %}
+              <a class="dwr-btn dwr-btn--ghost" href="{{ h.url_for('user.login') }}">{{ _('Log in') }}</a>
+              {% if h.check_access('user_create') %}
+                <a class="dwr-btn dwr-btn--primary" href="{{ h.url_for('user.register') }}">{{ _('Register') }}</a>
+              {% endif %}
+            {% endblock %}
+          {% endif %}
+        </div>
+      {% endblock %}
+    </div>
+  </div>
+</header>
+{% endblock %}

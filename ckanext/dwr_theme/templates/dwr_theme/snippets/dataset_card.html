@@ -1,0 +1,31 @@
+{#
+  Dataset card for the homepage grid.
+
+  package - dataset dict as returned by package_search
+#}
+{% import 'dwr_theme/macros/icons.html' as icons %}
+{% set url = h.url_for(package.type ~ '.read', id=package.name) %}
+{% set formats = h.dict_list_reduce(package.resources, 'format') %}
+
+<article class="dwr-card dwr-dataset-card">
+  {% if package.organization %}
+    <div class="dwr-card__eyebrow">{{ package.organization.title or package.organization.name }}</div>
+  {% endif %}
+  <h3 class="dwr-card__title">
+    <a href="{{ url }}">{{ h.truncate(package.title or package.name, 90) }}</a>
+  </h3>
+  <p class="dwr-card__text">
+    {{ h.markdown_extract(package.notes, extract_length=160) or _('No description provided.') }}
+  </p>
+  <div class="dwr-card__footer">
+    <ul class="dwr-formats">
+      {% for format in formats[:4] %}
+        <li data-format="{{ format | lower }}">{{ format }}</li>
+      {% endfor %}
+    </ul>
+    <span class="dwr-card__date">
+      {{ icons.icon('clock') }}
+      <time datetime="{{ package.metadata_modified }}">{{ h.render_datetime(package.metadata_modified) }}</time>
+    </span>
+  </div>
+</article>

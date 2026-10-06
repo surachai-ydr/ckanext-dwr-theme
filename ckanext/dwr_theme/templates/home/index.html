@@ -1,0 +1,158 @@
+{% extends "page.html" %}
+{% import 'dwr_theme/macros/icons.html' as icons %}
+
+{% block subtitle %}{{ _("Welcome") }}{% endblock %}
+
+{#
+  The whole content block is replaced: the homepage is full-width and has no
+  breadcrumb or sidebar, so CKAN's container/wrapper layout is not used.
+  Each section is its own block (override one to change it); variables are
+  set inside the block that uses them because nested blocks can't see
+  variables set in the enclosing block.
+#}
+{% block content %}
+  <div id="content" class="dwr-home">
+
+    {% block dwr_flash %}
+      {% set messages = h.get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="dwr-container dwr-flash">
+          {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ h.literal(message) }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endblock %}
+
+    {% block dwr_hero %}
+      {% set hero = h.dwr_theme_hero() %}
+      {% set tags = h.dwr_theme_popular_tags() %}
+      <section class="dwr-hero"{% if hero.image %} style="--dwr-hero-image: url('{{ h.url_for_static_or_external(hero.image) }}')"{% endif %}>
+        <div class="dwr-container">
+          <div class="dwr-hero__inner">
+            <span class="dwr-hero__eyebrow">{{ icons.icon('droplet') }} {{ _('Open Data Portal') }}</span>
+            <h1>{{ hero.title or g.site_title }}</h1>
+            <p class="dwr-hero__subtitle">
+              {{ hero.subtitle or g.site_description or _('Discover, explore and download datasets published by our organizations.') }}
+            </p>
+
+            <form class="dwr-hero-search" action="{{ h.url_for('dataset.search') }}" method="get" role="search">
+              {{ icons.icon('search') }}
+              <label for="dwr-hero-q" class="dwr-sr-only">{{ _('Search datasets') }}</label>
+              <input id="dwr-hero-q" type="search" name="q" placeholder="{{ _('What data are you looking for?') }}" autocomplete="off">
+              <button class="dwr-btn dwr-btn--primary" type="submit">{{ _('Search') }}</button>
+            </form>
+
+            {% if tags %}
+              <div class="dwr-hero__tags">
+                <span>{{ _('Popular:') }}</span>
+                {% for tag in tags %}
+                  <a href="{{ h.url_for('dataset.search', tags=tag.name) }}">{{ tag.display_name }}</a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <svg class="dwr-hero__wave" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M0,88 C260,120 520,120 760,92 C1000,64 1220,48 1440,76 L1440,120 L0,120 Z"/>
+        </svg>
+      </section>
+    {% endblock %}
+
+    {% block dwr_stats %}
+      {% set stats = h.get_site_statistics() %}
+      <section class="dwr-stats" aria-label="{{ _('Statistics') }}">
+        <div class="dwr-container dwr-stats__grid">
+          {% for key, label, icon, endpoint in [
+              ('dataset_count', _('Datasets'), 'database', 'dataset.search'),
+              ('organization_count', _('Organizations'), 'briefcase', 'organization.index'),
+              ('group_count', _('Groups'), 'layers', 'group.index')] %}
+            <a class="dwr-stat" href="{{ h.url_for(endpoint) }}">
+              <span class="dwr-stat__icon">{{ icons.icon(icon) }}</span>
+              <span>
+                <span class="dwr-stat__value">{{ h.SI_number_span(stats[key]) }}</span>
+                <span class="dwr-stat__label">{{ label }}</span>
+              </span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endblock %}
+
+    {% block dwr_recent_datasets %}
+      {% set datasets = h.dwr_theme_recent_datasets() %}
+      <section class="dwr-section">
+        <div class="dwr-container">
+          <div class="dwr-section__head">
+            <div>
+              <h2>{{ _('Recently updated datasets') }}</h2>
+              <p>{{ _('The latest data published on the portal.') }}</p>
+            </div>
+            <a class="dwr-link-arrow" href="{{ h.url_for('dataset.search', sort='metadata_modified desc') }}">
+              {{ _('View all datasets') }} {{ icons.icon('arrow-right') }}
+            </a>
+          </div>
+
+          {% if datasets %}
+            <div class="dwr-grid">
+              {% for package in datasets %}
+                {% snippet 'dwr_theme/snippets/dataset_card.html', package=package %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dwr-empty">
+              {{ _('No datasets have been published yet.') }}
+              {% if h.check_access('package_create') %}
+                <a href="{{ h.url_for('dataset.new') }}">{{ _('Add the first dataset') }}</a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    {% endblock %}
+
+    {% block dwr_organizations %}
+      {% set organizations = h.dwr_theme_featured_organizations() %}
+      {% if organizations %}
+        <section class="dwr-section">
+          <div class="dwr-container">
+            <div class="dwr-section__head">
+              <div>
+                <h2>{{ _('Organizations') }}</h2>
+                <p>{{ _('Publishers sharing data on this portal.') }}</p>
+              </div>
+              <a class="dwr-link-arrow" href="{{ h.url_for('organization.index') }}">
+                {{ _('View all organizations') }} {{ icons.icon('arrow-right') }}
+              </a>
+            </div>
+            <div class="dwr-grid dwr-grid--orgs">
+              {% for organization in organizations %}
+                {% snippet 'dwr_theme/snippets/organization_card.html', organization=organization %}
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      {% endif %}
+    {% endblock %}
+
+    {% block dwr_api %}
+      <section class="dwr-section">
+        <div class="dwr-container">
+          <div class="dwr-cta">
+            <div class="dwr-cta__text">
+              <h2>{{ _('Build with our data') }}</h2>
+              <p>{{ _('Every dataset is also available as JSON through the CKAN Action API.') }}</p>
+            </div>
+            <div class="dwr-cta__actions">
+              <code>GET {{ h.url_for('api.action', ver=3, logic_function='package_search', qualified=True) }}?q=</code>
+              <a class="dwr-btn dwr-btn--light" href="https://docs.ckan.org/en/2.10/api/" target="_blank" rel="noopener">
+                {{ icons.icon('code') }} {{ _('API documentation') }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endblock %}
+
+  </div>
+{% endblock %}

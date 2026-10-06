@@ -1,8 +1,22 @@
 {% ckan_extends %}
 
+{% block meta %}
+  {{ super() }}
+  <meta name="theme-color" content="{{ h.dwr_theme_primary_color() }}">
+{% endblock %}
+
 {% block styles %}
   {{ super() }}
+  {% if h.dwr_theme_web_fonts() %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  {% endif %}
   {% asset 'dwr-theme/dwr-theme-css' %}
+  {# Brand colour from ckanext.dwr_theme.primary_color. html:root outranks the
+     :root defaults in theme.css regardless of stylesheet order. #}
+  {% set palette = h.dwr_theme_palette() %}
+  <style>html:root{--dwr-primary:{{ palette.primary }};--dwr-primary-dark:{{ palette.dark }};--dwr-primary-soft:{{ palette.soft }};}</style>
 {% endblock %}
 
 {% block scripts %}

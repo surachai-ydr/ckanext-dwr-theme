@@ -1,0 +1,1 @@
+# Runtime dependencies of ckanext-dwr-theme (CKAN itself is assumed to be installed)

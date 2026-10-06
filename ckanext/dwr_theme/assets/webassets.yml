@@ -1,0 +1,13 @@
+dwr-theme-css:
+  output: ckanext-dwr-theme/%(version)s-dwr-theme.css
+  contents:
+    - css/theme.css
+
+dwr-theme-js:
+  filter: rjsmin
+  output: ckanext-dwr-theme/%(version)s-dwr-theme.js
+  contents:
+    - js/theme.js
+  extra:
+    preload:
+      - base/main

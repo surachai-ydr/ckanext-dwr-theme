@@ -1,0 +1,12 @@
+version: 1
+groups:
+  - annotation: ckanext-dwr-theme
+    options:
+      - key: ckanext.dwr_theme.greeting
+        default: Hello
+        description: Greeting prefix used by the dwr_theme_hello action and helpers.
+        example: Sawasdee
+      - key: ckanext.dwr_theme.show_dataset_count
+        type: bool
+        default: true
+        description: Show the total dataset count on the /dwr-theme page.

@@ -1,0 +1,9 @@
+{% ckan_extends %}
+
+{% block footer_attribution %}
+  {{ super() }}
+  <p class="dwr-theme-footer-note">
+    {{ _('Customized with ckanext-dwr-theme') }} &middot;
+    <a href="{{ h.url_for('dwr_theme.index') }}">{{ _('Theme demo') }}</a>
+  </p>
+{% endblock %}

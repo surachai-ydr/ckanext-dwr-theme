@@ -11,6 +11,16 @@
             <span class="dwr-brand__text"><span class="dwr-brand__title">{{ g.site_title }}</span></span>
           </a>
           <p>{{ g.site_description or _('An open data portal powered by CKAN.') }}</p>
+          {% block footer_contact %}
+            {# Agency contact details from thai_gdc's Sysadmin config page. #}
+            {% if h.dwr_theme_gdc_enabled() %}
+              <ul class="dwr-footer__contact">
+                {% for value, icon in [(g.site_org_address, 'map-pin'), (g.site_org_contact, 'phone'), (g.site_org_email, 'mail')] if value %}
+                  <li>{{ icons.icon(icon) }}<div>{{ h.render_markdown(value) }}</div></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endblock %}
         </div>
       {% endblock %}
 
@@ -49,6 +59,13 @@
           &copy; {{ h.dwr_theme_current_year() }} {{ g.site_title }}
           <span aria-hidden="true">&middot;</span>
           <a href="{{ h.dwr_theme_privacy_policy_url() }}">{{ _('Privacy Policy') }}</a>
+          {% if h.dwr_theme_gdc_enabled() %}
+            {% if g.site_policy_link %}
+              <span class="dwr-footer__policies">{{ h.render_markdown(g.site_policy_link) }}</span>
+            {% endif %}
+            <span aria-hidden="true">&middot;</span>
+            {{ _('Visitors') }} <strong class="dwr-footer__visitors">{{ h.thai_gdc_get_stat_all_view() }}</strong>
+          {% endif %}
         </span>
         <span>{{ _('Powered by') }} <a href="https://ckan.org" target="_blank" rel="noopener">DWR Information and Research</a></span>
       </div>

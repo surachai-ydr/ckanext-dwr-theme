@@ -769,3 +769,86 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
 .dwr-policy .module-content { max-width: 820px; }
 .dwr-policy h2 { margin: 28px 0 10px; color: var(--dwr-ink); font-size: calc(19px * var(--dwr-font-scale)); font-weight: 700; }
 .dwr-policy__updated { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+
+/* --------------------------------------------------------------------------
+   ckanext-thai_gdc integration
+   thai_gdc's stylesheet loads before this one and sets its Sukhumvit fonts
+   on headings, buttons and module headings; keep the theme's font instead.
+   -------------------------------------------------------------------------- */
+
+.btn, .page-heading, .media-heading, .module-heading, .module-content h1,
+.header, .masthead .section, .textRecentViews, .package_count, .totalVisitor {
+  font-family: var(--dwr-font);
+}
+
+/* Footer contact details (Sysadmin config: address / phone / e-mail) */
+.dwr-footer__contact { display: grid; gap: 10px; margin: 20px 0 0 !important; }
+.dwr-footer__contact li { display: flex; gap: 10px; align-items: flex-start; }
+.dwr-footer__contact .dwr-icon { margin-top: 3px; color: var(--dwr-accent); }
+.dwr-footer__contact p { margin: 0; }
+.dwr-footer__policies, .dwr-footer__policies p { display: inline; margin: 0; }
+.dwr-footer__visitors { color: #fff; }
+
+/* Dataset cards: group badges and view count */
+.dwr-group-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; padding: 0; list-style: none; }
+.dwr-group-tags a {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  color: var(--dwr-group-color); background: color-mix(in srgb, var(--dwr-group-color) 12%, #fff);
+  border: 1px solid color-mix(in srgb, var(--dwr-group-color) 30%, #fff);
+  font-size: calc(12px * var(--dwr-font-scale)); font-weight: 600;
+}
+.dwr-group-tags a:hover, .dwr-group-tags a:focus { color: #fff; background: var(--dwr-group-color); text-decoration: none; }
+.dwr-card__meta { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 14px; }
+
+/* "Choose dataset type" sidebar on /dataset/new (thai_gdc package/base_form_page.html) */
+.secondary .module-narrow.module-shallow { margin: 0 0 16px; }
+.secondary .nav-simple .nav-item > a { white-space: normal; }
+
+/* Add-dataset stages (1 Create dataset -> 2 Add data) */
+.stages { display: flex; gap: 8px; margin: 0 0 28px; padding: 0; list-style: none; counter-reset: none; }
+.stages li {
+  flex: 1; position: relative; margin: 0; padding: 0;
+  background: var(--dwr-bg); border-radius: 999px; text-align: center;
+}
+.stages li::before, .stages li::after { display: none; }
+.stages li .highlight {
+  display: block; width: auto; padding: 10px 16px; border-radius: 999px;
+  color: var(--dwr-muted); background: transparent; text-indent: 0;
+  font-weight: 600; font-size: calc(14px * var(--dwr-font-scale));
+}
+.stages li.active .highlight { color: #fff; background: var(--dwr-primary); box-shadow: 0 8px 18px -10px var(--dwr-primary); }
+.stages li.complete .highlight { color: var(--dwr-primary); background: var(--dwr-primary-soft); }
+.stages li .highlight a, .stages li .highlight button { color: inherit; background: none; border: 0; font: inherit; }
+
+/* Form fields */
+.dataset-form .form-label, .dataset-form .control-label, .resource-form .form-label { color: var(--dwr-ink); font-weight: 600; }
+.dataset-form .form-group, .dataset-form .control-group { margin-bottom: 18px; }
+.dataset-form .info-block, .dataset-form .form-text, .help-block { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: flex-end; margin-top: 24px; padding-top: 20px; }
+.form-actions .btn-danger { margin-right: auto; }
+.error-explanation { border-radius: 12px; }
+fieldset.checkboxes { display: grid; gap: 6px; }
+fieldset.checkboxes label { display: flex; align-items: center; gap: 8px; }
+
+/* jQuery UI autocomplete (thai_gdc search suggestions) */
+.ui-autocomplete.ui-menu {
+  padding: 6px; z-index: 1100;
+  background: #fff; border: 1px solid var(--dwr-border); border-radius: 12px; box-shadow: var(--dwr-shadow-lg);
+  font-family: var(--dwr-font);
+}
+.ui-autocomplete .ui-menu-item-wrapper, .ui-autocomplete .ui-menu-item a { padding: 6px 10px; border: 0 !important; border-radius: 8px; color: var(--dwr-text); }
+.ui-autocomplete .ui-state-active { margin: 0 !important; color: var(--dwr-primary) !important; background: var(--dwr-primary-soft) !important; }
+
+/* GD-Catalog status labels on the dataset page */
+.gdcatalog-label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: calc(12.5px * var(--dwr-font-scale)); }
+.gdcatalog-success { background: #15803d; }
+.gdcatalog-warning { background: #c2410c; }
+
+/* Recommended views on the dataset page */
+.panel { margin-bottom: 16px; border: 1px solid var(--dwr-border); border-radius: var(--dwr-radius); overflow: hidden; }
+.panel-heading { padding: 12px 16px; color: var(--dwr-ink); background: var(--dwr-bg); font-weight: 600; }
+.panel-body iframe { display: block; border: 0; }
+
+@media (max-width: 575.98px) {
+  .stages { flex-direction: column; }
+}

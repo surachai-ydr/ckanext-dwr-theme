@@ -61,6 +61,18 @@ Put this folder in `src/` of your [ckan-docker](https://github.com/ckan/ckan-doc
 checkout (dev mode installs everything in `src/` automatically), then add
 `dwr-theme` to `CKAN__PLUGINS` in `.env` and run `docker compose -f docker-compose.dev.yml up --build`.
 
+### With ckanext-thai_gdc
+
+The theme can sit on top of [ckanext-thai_gdc](https://gitlab.nectec.or.th/opend/ckanext-thai_gdc).
+List `dwr-theme` **before** `thai_gdc` so its templates win:
+
+    ckan.plugins = dwr-theme thai_gdc scheming_datasets hierarchy_display hierarchy_form ...
+
+When thai_gdc is loaded the footer shows the agency address/phone/e-mail, policy links
+and visitor count from its Sysadmin config page, and dataset cards show view counts and
+group badges. To try it locally (expects `ckanext-thai-gdc` next to this folder), run
+`docker compose -f docker-compose.gdc.yml -p dwr-gdc up` and open http://localhost:5001.
+
 ## Theme
 
 A modern replacement for CKAN's default look:

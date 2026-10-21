@@ -6,6 +6,7 @@ import logging
 import re
 from typing import Any, Callable
 
+import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 from ckan.lib.search import SearchError
 
@@ -156,6 +157,11 @@ def dwr_theme_featured_organizations(limit: int | None = None) -> list[dict[str,
         return []
 
 
+def dwr_theme_gdc_enabled() -> bool:
+    """True when ckanext-thai_gdc is loaded, so templates can use its helpers."""
+    return plugins.plugin_loaded("thai_gdc")
+
+
 def dwr_theme_initials(name: str) -> str:
     """Up to two initials for an avatar placeholder, e.g. "Water Resources" -> "WR"."""
     words = [word for word in (name or "").split() if word]
@@ -178,4 +184,5 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_popular_tags": dwr_theme_popular_tags,
         "dwr_theme_featured_organizations": dwr_theme_featured_organizations,
         "dwr_theme_initials": dwr_theme_initials,
+        "dwr_theme_gdc_enabled": dwr_theme_gdc_enabled,
     }

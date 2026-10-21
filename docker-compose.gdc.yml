@@ -1,0 +1,90 @@
+# Run a local CKAN site with this theme on top of ckanext-thai_gdc (the
+# production setup), at http://localhost:5001
+#
+# Expects ckanext-thai-gdc to be checked out next to this folder.
+#
+#   docker compose -f docker-compose.gdc.yml -p dwr-gdc up
+#   docker compose -f docker-compose.gdc.yml -p dwr-gdc down
+#
+# Log in as admin / admin123456. Template and asset changes show on refresh;
+# restart the ckan service after Python changes.
+services:
+  ckan:
+    image: ckan/ckan-dev:2.10
+    user: root
+    ports:
+      - "5001:5000"
+    volumes:
+      - .:/srv/app/src_extensions/ckanext-dwr-theme
+      - ../ckanext-thai-gdc:/srv/app/src_extensions/ckanext-thai-gdc
+    environment:
+      CKAN_SITE_URL: http://localhost:5001
+      CKAN_SITE_ID: default
+      CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
+      CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
+      CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
+      CKAN_SOLR_URL: http://solr:8983/solr/ckan
+      CKAN_REDIS_URL: redis://redis:6379/1
+      CKAN_STORAGE_PATH: /var/lib/ckan
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        pip install -q \
+          "git+https://github.com/ckan/ckanext-scheming.git@release-3.0.0#egg=ckanext-scheming" \
+          "git+https://github.com/ckan/ckanext-hierarchy.git@v1.2.2#egg=ckanext-hierarchy"
+        cd /srv/app/src_extensions/ckanext-thai-gdc
+        pip install -q --default-timeout=60 --retries 10 -r requirements.txt -e .
+        cd /srv/app/src_extensions/ckanext-dwr-theme
+        pip install -q -r requirements.txt -e .
+        # thai_gdc's configure() needs the site user (named after
+        # ckan.site_id) to exist already, so set up the database without it.
+        ckan config-tool $$CKAN_INI \
+          "ckan.plugins = activity image_view text_view datatables_view dwr-theme" \
+          "scheming.dataset_schemas = ckanext.thai_gdc:ckan_dataset.json" \
+          "scheming.presets = ckanext.scheming:presets.json ckanext.thai_gdc:presets.json" \
+          "scheming.dataset_fallback = false" \
+          "ckan.site_url = http://localhost:5001" \
+          "debug = true" \
+          "ckan.locale_default = th" \
+          "ckan.locales_offered = th en" \
+          "beaker.session.secret = dev-secret" \
+          "WTF_CSRF_SECRET_KEY = dev-secret" \
+          "api_token.jwt.encode.secret = string:dev-secret" \
+          "api_token.jwt.decode.secret = string:dev-secret"
+        ckan -c $$CKAN_INI db upgrade
+        ckan -c $$CKAN_INI user show admin | grep -q "name=admin" ||
+          ckan -c $$CKAN_INI user add admin password=admin123456 email=admin@localhost
+        ckan -c $$CKAN_INI sysadmin add admin
+        ckan -c $$CKAN_INI user show default | grep -q "name=default" ||
+          ckan -c $$CKAN_INI user add default password=site-user-$$RANDOM$$RANDOM email=site@localhost
+        # dwr-theme must come before thai_gdc so its templates win.
+        ckan config-tool $$CKAN_INI \
+          "ckan.plugins = activity image_view text_view datatables_view dwr-theme thai_gdc scheming_datasets hierarchy_display hierarchy_form"
+        exec ckan -c $$CKAN_INI run -H 0.0.0.0 -p 5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      solr:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  solr:
+    image: ckan/ckan-solr:2.10-solr9
+
+  redis:
+    image: redis:7
+
+  postgres:
+    image: ckan/ckan-postgres-dev:2.10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

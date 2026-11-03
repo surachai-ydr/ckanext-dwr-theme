@@ -444,6 +444,7 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
 }
 .dwr-footer ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .dwr-footer .dwr-brand, .dwr-footer .dwr-brand:hover { color: #fff; text-decoration: none; }
+.dwr-footer__logo { display: block; width: auto; max-width: 160px; max-height: 48px; object-fit: contain; }
 .dwr-footer__about p { max-width: 340px; margin: 16px 0 0; }
 .dwr-footer__lang label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 .dwr-footer__lang select {

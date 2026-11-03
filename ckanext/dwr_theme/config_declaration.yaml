@@ -63,6 +63,24 @@ groups:
           Load Inter and Noto Sans Thai from Google Fonts. Disable on servers
           without internet access (system fonts are used instead).
 
+  - annotation: ckanext-dwr-theme footer
+    options:
+      - key: ckanext.dwr_theme.footer_name
+        description: |
+          Name shown in the footer and its copyright line, for all languages.
+          Defaults to the site title. The per-language options take precedence.
+      - key: ckanext.dwr_theme.footer_name_th
+        description: Thai footer name. Editable on /ckan-admin/config.
+        example: กรมทรัพยากรน้ำ
+      - key: ckanext.dwr_theme.footer_name_en
+        description: English footer name. Editable on /ckan-admin/config.
+        example: Department of Water Resources
+      - key: ckanext.dwr_theme.footer_logo
+        description: |
+          Optional logo replacing the droplet icon in the footer. Usually uploaded
+          on /ckan-admin/config (stored under /uploads/admin/), or any image URL.
+        example: /images/dwr-logo-white.png
+
   - annotation: ckanext-dwr-theme privacy policy
     options:
       - key: ckanext.dwr_theme.privacy_policy_url

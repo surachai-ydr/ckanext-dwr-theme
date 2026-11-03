@@ -1,8 +1,16 @@
+import base64
+import datetime
+import io
 import re
 
 import pytest
 
+import ckan.lib.uploader as uploader
 from ckan.tests import factories
+
+PNG_1X1 = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+)
 
 
 @pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
@@ -99,6 +107,75 @@ class TestTheme:
         )
 
         assert 'src="https://example.com/logo.png"' in app.get("/").body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_logo", "")
+    def test_hero_logo_uploaded_on_admin_config(self, app, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+        monkeypatch.setattr(uploader, "_storage_path", str(tmpdir))
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={"save": "", "hero_logo_upload": (io.BytesIO(PNG_1X1), "dwr-logo.png")},
+        )
+
+        logo = ckan_config["ckanext.dwr_theme.hero_logo"]
+        assert re.match(r"^/uploads/admin/.*dwr-logo\.png$", logo)
+        assert f'<img class="dwr-hero__logo" src="{logo}"' in app.get("/").body
+        assert app.get(logo).status_code == 200
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={"save": "", "ckanext.dwr_theme.hero_logo": logo, "clear_hero_logo_upload": "true"},
+        )
+        assert 'class="dwr-hero__logo"' not in app.get("/").body
+
+    @pytest.mark.ckan_config("ckan.site_title", "My Portal")
+    def test_footer_defaults_to_site_title(self, app):
+        body = app.get("/").body
+
+        assert '<span class="dwr-brand__title">My Portal</span>' in body
+        assert 'class="dwr-footer__logo"' not in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.footer_name_en", "Department of Water Resources")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.footer_logo", "/images/dwr-white.png")
+    def test_footer_name_and_logo_configured(self, app):
+        body = app.get("/").body
+
+        assert '<span class="dwr-brand__title">Department of Water Resources</span>' in body
+        assert f"&copy; {datetime.date.today().year} Department of Water Resources" in body
+        assert '<img class="dwr-footer__logo" src="/images/dwr-white.png"' in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.footer_logo", "")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.footer_name_en", "")
+    def test_footer_editable_on_admin_config(self, app, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+        monkeypatch.setattr(uploader, "_storage_path", str(tmpdir))
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+
+        body = app.get("/ckan-admin/config", headers=headers).body
+        assert 'name="ckanext.dwr_theme.footer_name_th"' in body
+        assert 'name="footer_logo_upload"' in body
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={
+                "save": "",
+                "ckanext.dwr_theme.footer_name_en": "DWR Footer",
+                "footer_logo_upload": (io.BytesIO(PNG_1X1), "footer.png"),
+            },
+        )
+
+        logo = ckan_config["ckanext.dwr_theme.footer_logo"]
+        assert re.match(r"^/uploads/admin/.*footer\.png$", logo)
+        body = app.get("/").body
+        assert '<span class="dwr-brand__title">DWR Footer</span>' in body
+        assert f'<img class="dwr-footer__logo" src="{logo}"' in body
 
     def test_font_size_control(self, app):
         body = app.get("/").body

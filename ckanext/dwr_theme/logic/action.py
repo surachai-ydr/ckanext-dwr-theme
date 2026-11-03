@@ -27,33 +27,40 @@ def dwr_theme_hello(context: Context, data_dict: DataDict) -> dict[str, Any]:
     return {"message": f"{greeting}, {data['name']}!"}
 
 
-HERO_LOGO = "ckanext.dwr_theme.hero_logo"
-HERO_LOGO_UPLOAD = "hero_logo_upload"
-HERO_LOGO_CLEAR = "clear_hero_logo_upload"
+# Image options editable on /ckan-admin/config, as
+# {option: (file upload field, "remove" checkbox field)}
+LOGO_FIELDS = {
+    f"ckanext.dwr_theme.{name}_logo": (f"{name}_logo_upload", f"clear_{name}_logo_upload")
+    for name in ("hero", "footer")
+}
 
 
 @tk.chained_action
 def config_option_update(
     next_action: Any, context: Context, data_dict: DataDict
 ) -> dict[str, Any]:
-    """Store an uploaded homepage hero logo, like core does for the site logo.
+    """Store uploaded theme logos, like core does for the site logo.
 
-    Core only handles the ``ckan.site_logo`` upload, so the file is saved here
-    and the option is set to its public ``/uploads/admin/...`` URL (built the
-    same way as core's, so it honours ``ckan.root_path``).
+    Core only handles the ``ckan.site_logo`` upload, so the files are saved
+    here and each option is set to its public ``/uploads/admin/...`` URL (built
+    the same way as core's, so it honours ``ckan.root_path``).
     """
-    if HERO_LOGO in data_dict or HERO_LOGO_UPLOAD in data_dict:
-        tk.check_access("config_option_update", context, data_dict)
-        upload = uploader.get_uploader("admin")
-        upload.update_data_dict(data_dict, HERO_LOGO, HERO_LOGO_UPLOAD, HERO_LOGO_CLEAR)
-        upload.upload(uploader.get_max_image_size())
+    for option, (upload_field, clear_field) in LOGO_FIELDS.items():
+        file = data_dict.pop(upload_field, None)
+        clear = tk.asbool(data_dict.pop(clear_field, False))
 
-        value = data_dict.get(HERO_LOGO) or ""
-        if value and not value.startswith(("http", "/")):
-            data_dict[HERO_LOGO] = tk.h.url_for_static(f"uploads/admin/{value}")
+        if clear:
+            data_dict[option] = ""
+        elif getattr(file, "filename", None):
+            tk.check_access("config_option_update", context, data_dict)
+            upload = uploader.get_uploader("admin")
+            # Saves to <ckan.storage_path>/storage/uploads/admin/; errors are
+            # keyed by upload_field (e.g. a file that is not an image)
+            upload.update_data_dict({upload_field: file}, option, upload_field, clear_field)
+            upload.upload(uploader.get_max_image_size())
+            if upload.filename:
+                data_dict[option] = tk.h.url_for_static(f"uploads/admin/{upload.filename}")
 
-    data_dict.pop(HERO_LOGO_UPLOAD, None)
-    data_dict.pop(HERO_LOGO_CLEAR, None)
     return next_action(context, data_dict)
 
 

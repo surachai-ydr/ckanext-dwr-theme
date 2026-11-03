@@ -5,10 +5,15 @@
   <div class="dwr-container">
     <div class="dwr-footer__grid">
       {% block footer_about %}
+        {% set footer = h.dwr_theme_footer() %}
         <div class="dwr-footer__about">
           <a class="dwr-brand" href="{{ h.url_for('home.index') }}">
-            <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
-            <span class="dwr-brand__text"><span class="dwr-brand__title">{{ g.site_title }}</span></span>
+            {% if footer.logo %}
+              <img class="dwr-footer__logo" src="{{ h.url_for_static_or_external(footer.logo) }}" alt="">
+            {% else %}
+              <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
+            {% endif %}
+            <span class="dwr-brand__text"><span class="dwr-brand__title">{{ footer.name }}</span></span>
           </a>
           <p>{{ g.site_description or _('An open data portal powered by CKAN.') }}</p>
           {% block footer_contact %}
@@ -56,7 +61,7 @@
     {% block footer_attribution %}
       <div class="dwr-footer__bottom">
         <span>
-          &copy; {{ h.dwr_theme_current_year() }} {{ g.site_title }}
+          &copy; {{ h.dwr_theme_current_year() }} {{ h.dwr_theme_footer().name }}
           <span aria-hidden="true">&middot;</span>
           <a href="{{ h.dwr_theme_privacy_policy_url() }}">{{ _('Privacy Policy') }}</a>
           {% if h.dwr_theme_gdc_enabled() %}

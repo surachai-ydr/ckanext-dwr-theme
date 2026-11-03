@@ -93,7 +93,8 @@ Colors live at the top of `ckanext/dwr_theme/assets/css/theme.css`; the brand co
 Site title, description and logo come from **Sysadmin settings → Config** (`/ckan-admin/config`).
 The homepage hero heading ("Data Catalog System") and subtitle ("Department of Water Resources, ...")
 can be edited there too, in the **Homepage hero** section, separately for Thai and English.
-The same section has a **Hero logo** (upload or URL) shown above the title.
+The same section has a **Hero logo** (upload or URL) shown above the title, and a **Footer**
+section sets the footer name (Thai/English, defaults to the site title) and footer logo.
 Empty fields fall back to `ckanext.dwr_theme.hero_title` / `hero_subtitle` from the ini file,
 then to the translated defaults.
 If a custom logo is set it replaces the droplet mark in the header.

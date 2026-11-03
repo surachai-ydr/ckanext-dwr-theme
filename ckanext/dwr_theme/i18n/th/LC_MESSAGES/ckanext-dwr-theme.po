@@ -346,3 +346,29 @@ msgid ""
 "Shown above the hero title. A transparent PNG or SVG works best on the "
 "coloured background."
 msgstr "แสดงเหนือหัวข้อหลัก แนะนำไฟล์ PNG พื้นโปร่งใสหรือ SVG เพื่อให้เข้ากับพื้นหลังสี"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "Remove logo"
+msgstr "ลบโลโก้"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "An uploaded file replaces the URL."
+msgstr "หากอัปโหลดไฟล์ จะใช้ไฟล์แทน URL"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "Footer"
+msgstr "ส่วนท้าย"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "Footer name"
+msgstr "ชื่อส่วนท้าย"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "Footer logo"
+msgstr "โลโก้ส่วนท้าย"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid ""
+"Replaces the droplet icon next to the footer name. A light or white logo "
+"works best on the dark footer."
+msgstr "ใช้แทนไอคอนหยดน้ำข้างชื่อส่วนท้าย แนะนำโลโก้สีอ่อนหรือสีขาวเพื่อให้เข้ากับพื้นหลังสีเข้ม"

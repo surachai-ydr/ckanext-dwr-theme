@@ -79,17 +79,17 @@ def dwr_theme_web_fonts() -> bool:
     return tk.asbool(tk.config.get("ckanext.dwr_theme.web_fonts"))
 
 
-# Languages whose hero texts can be edited on /ckan-admin/config
-HERO_LANGUAGES = ("th", "en")
+# Languages whose texts can be edited on /ckan-admin/config
+LANGUAGES = ("th", "en")
 
 
-def _hero_text(field: str) -> str:
-    """``hero_<field>_<lang>`` for the current language, else ``hero_<field>``.
+def _localized(option: str) -> str:
+    """``<option>_<lang>`` for the current language, else ``<option>``.
 
     The per-language options are set by sysadmins on /ckan-admin/config.
     """
     lang = (tk.h.lang() or "").split("_")[0]
-    for key in (f"ckanext.dwr_theme.hero_{field}_{lang}", f"ckanext.dwr_theme.hero_{field}"):
+    for key in (f"ckanext.dwr_theme.{option}_{lang}", f"ckanext.dwr_theme.{option}"):
         value = (tk.config.get(key) or "").strip()
         if value:
             return value
@@ -99,10 +99,18 @@ def _hero_text(field: str) -> str:
 def dwr_theme_hero() -> dict[str, str]:
     """Hero texts from config; empty values fall back to translated defaults in the template."""
     return {
-        "title": _hero_text("title"),
-        "subtitle": _hero_text("subtitle"),
+        "title": _localized("hero_title"),
+        "subtitle": _localized("hero_subtitle"),
         "image": tk.config.get("ckanext.dwr_theme.hero_image") or "",
         "logo": (tk.config.get("ckanext.dwr_theme.hero_logo") or "").strip(),
+    }
+
+
+def dwr_theme_footer() -> dict[str, str]:
+    """Footer name and logo from config; the name falls back to the site title."""
+    return {
+        "name": _localized("footer_name") or tk.config.get("ckan.site_title") or "",
+        "logo": (tk.config.get("ckanext.dwr_theme.footer_logo") or "").strip(),
     }
 
 
@@ -195,6 +203,7 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_palette": dwr_theme_palette,
         "dwr_theme_web_fonts": dwr_theme_web_fonts,
         "dwr_theme_hero": dwr_theme_hero,
+        "dwr_theme_footer": dwr_theme_footer,
         "dwr_theme_current_year": dwr_theme_current_year,
         "dwr_theme_privacy_policy_url": dwr_theme_privacy_policy_url,
         "dwr_theme_home_modal": dwr_theme_home_modal,

@@ -29,6 +29,18 @@ class DwrThemePlugin(plugins.SingletonPlugin, DefaultTranslation):
         tk.add_public_directory(config_, "public")
         tk.add_resource("assets", "dwr-theme")
 
+    def update_config_schema(self, schema: dict[str, Any]):
+        # Lets sysadmins edit the homepage hero texts on /ckan-admin/config
+        ignore_missing = tk.get_validator("ignore_missing")
+        unicode_safe = tk.get_validator("unicode_safe")
+        for field in ("title", "subtitle"):
+            for lang in helpers.HERO_LANGUAGES:
+                schema[f"ckanext.dwr_theme.hero_{field}_{lang}"] = [ignore_missing, unicode_safe]
+        # The upload/clear fields are consumed by the chained config_option_update
+        for key in (action.HERO_LOGO, action.HERO_LOGO_UPLOAD, action.HERO_LOGO_CLEAR):
+            schema[key] = [ignore_missing, unicode_safe]
+        return schema
+
     # ITemplateHelpers
 
     def get_helpers(self):

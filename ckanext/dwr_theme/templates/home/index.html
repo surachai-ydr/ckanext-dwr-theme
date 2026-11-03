@@ -31,8 +31,10 @@
         <div class="dwr-container">
           <div class="dwr-hero__inner">
             <span class="dwr-hero__eyebrow">{{ icons.icon('droplet') }} {{ _('Open Data Portal') }}</span>
-            <!-- {{ hero.title or g.site_title }} -->
-            <h1>{{ _('Data Catalog System') }}</h1>
+            {% if hero.logo %}
+              <img class="dwr-hero__logo" src="{{ h.url_for_static_or_external(hero.logo) }}" alt="">
+            {% endif %}
+            <h1>{{ hero.title or _('Data Catalog System') }}</h1>
             <p class="dwr-hero__subtitle">
               {{ hero.subtitle or g.site_description or _('Department of Water Resources, Ministry of Natural Resources and Environment') }}
             </p>

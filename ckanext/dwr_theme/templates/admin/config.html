@@ -1,0 +1,41 @@
+{% ckan_extends %}
+
+{#
+  Adds the homepage hero texts to Sysadmin settings -> Config. Extends whatever
+  config form comes next (CKAN's own, or thai_gdc's when it is loaded).
+  Empty fields fall back to the translated defaults.
+#}
+{% block admin_form %}
+  {{ super() }}
+
+  <fieldset class="dwr-admin-hero">
+    <legend>{{ _('Homepage hero') }}</legend>
+    <p class="form-text text-muted">
+      {{ _('Leave a field empty to use the default text.') }}
+    </p>
+    {% for lang, lang_label in [('th', _('Thai')), ('en', _('English'))] %}
+      {% set title_key = 'ckanext.dwr_theme.hero_title_' ~ lang %}
+      {% set subtitle_key = 'ckanext.dwr_theme.hero_subtitle_' ~ lang %}
+      {{ form.input(title_key, id='field-dwr-hero-title-' ~ lang,
+                    label=_('Hero title') ~ ' (' ~ lang_label ~ ')',
+                    placeholder=_('Data Catalog System'),
+                    value=data[title_key], error=errors[title_key], classes=['control-medium']) }}
+      {{ form.input(subtitle_key, id='field-dwr-hero-subtitle-' ~ lang,
+                    label=_('Hero subtitle') ~ ' (' ~ lang_label ~ ')',
+                    placeholder=_('Department of Water Resources, Ministry of Natural Resources and Environment'),
+                    value=data[subtitle_key], error=errors[subtitle_key], classes=['control-medium']) }}
+    {% endfor %}
+
+    {% set logo_field = 'ckanext.dwr_theme.hero_logo' %}
+    {% set logo = data[logo_field] %}
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(),
+                         is_url=logo and logo.startswith('http'),
+                         is_upload=logo and not logo.startswith('http'),
+                         upload_label=_('Hero logo'), url_label=_('Hero logo'),
+                         field_url=logo_field, field_upload='hero_logo_upload',
+                         field_clear='clear_hero_logo_upload') }}
+    <p class="form-text text-muted">
+      {{ _('Shown above the hero title. A transparent PNG or SVG works best on the coloured background.') }}
+    </p>
+  </fieldset>
+{% endblock %}

@@ -20,10 +20,31 @@ groups:
           shades are derived from it automatically.
         example: "#00796b"
       - key: ckanext.dwr_theme.hero_title
-        description: Homepage hero heading. Defaults to the site title.
+        description: |
+          Homepage hero heading for all languages. Defaults to the translated
+          "Data Catalog System". The per-language options below take precedence.
         example: DWR Open Data
       - key: ckanext.dwr_theme.hero_subtitle
-        description: Homepage hero text. Defaults to the site description.
+        description: |
+          Homepage hero text for all languages. Defaults to the site description,
+          then to the translated department name.
+      - key: ckanext.dwr_theme.hero_title_th
+        description: Thai hero heading. Editable on /ckan-admin/config.
+        example: ระบบคลังข้อมูล
+      - key: ckanext.dwr_theme.hero_title_en
+        description: English hero heading. Editable on /ckan-admin/config.
+        example: Data Catalog System
+      - key: ckanext.dwr_theme.hero_subtitle_th
+        description: Thai hero text. Editable on /ckan-admin/config.
+        example: กรมทรัพยากรน้ำ กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม
+      - key: ckanext.dwr_theme.hero_subtitle_en
+        description: English hero text. Editable on /ckan-admin/config.
+        example: Department of Water Resources, Ministry of Natural Resources and Environment
+      - key: ckanext.dwr_theme.hero_logo
+        description: |
+          Optional logo shown above the homepage hero title. Usually uploaded on
+          /ckan-admin/config (stored under /uploads/admin/), or any image URL.
+        example: /images/dwr-logo.png
       - key: ckanext.dwr_theme.hero_image
         description: Optional background image URL for the homepage hero.
         example: /images/hero.jpg

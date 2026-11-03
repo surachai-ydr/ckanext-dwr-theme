@@ -79,12 +79,30 @@ def dwr_theme_web_fonts() -> bool:
     return tk.asbool(tk.config.get("ckanext.dwr_theme.web_fonts"))
 
 
+# Languages whose hero texts can be edited on /ckan-admin/config
+HERO_LANGUAGES = ("th", "en")
+
+
+def _hero_text(field: str) -> str:
+    """``hero_<field>_<lang>`` for the current language, else ``hero_<field>``.
+
+    The per-language options are set by sysadmins on /ckan-admin/config.
+    """
+    lang = (tk.h.lang() or "").split("_")[0]
+    for key in (f"ckanext.dwr_theme.hero_{field}_{lang}", f"ckanext.dwr_theme.hero_{field}"):
+        value = (tk.config.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
 def dwr_theme_hero() -> dict[str, str]:
-    """Hero texts from config; empty values fall back to site settings in the template."""
+    """Hero texts from config; empty values fall back to translated defaults in the template."""
     return {
-        "title": tk.config.get("ckanext.dwr_theme.hero_title") or "",
-        "subtitle": tk.config.get("ckanext.dwr_theme.hero_subtitle") or "",
+        "title": _hero_text("title"),
+        "subtitle": _hero_text("subtitle"),
         "image": tk.config.get("ckanext.dwr_theme.hero_image") or "",
+        "logo": (tk.config.get("ckanext.dwr_theme.hero_logo") or "").strip(),
     }
 
 

@@ -312,3 +312,37 @@ msgstr ""
 msgid "Popular"
 msgstr ""
 
+
+#: ckanext/dwr_theme/templates/admin/config.html:12
+msgid "Homepage hero"
+msgstr "ส่วนหัวหน้าแรก"
+
+#: ckanext/dwr_theme/templates/admin/config.html:14
+msgid "Leave a field empty to use the default text."
+msgstr "เว้นว่างไว้เพื่อใช้ข้อความเริ่มต้น"
+
+#: ckanext/dwr_theme/templates/admin/config.html:16
+msgid "Thai"
+msgstr "ภาษาไทย"
+
+#: ckanext/dwr_theme/templates/admin/config.html:16
+msgid "English"
+msgstr "ภาษาอังกฤษ"
+
+#: ckanext/dwr_theme/templates/admin/config.html:20
+msgid "Hero title"
+msgstr "หัวข้อหลัก"
+
+#: ckanext/dwr_theme/templates/admin/config.html:24
+msgid "Hero subtitle"
+msgstr "ข้อความรอง"
+
+#: ckanext/dwr_theme/templates/admin/config.html:35
+msgid "Hero logo"
+msgstr "โลโก้ส่วนหัว"
+
+#: ckanext/dwr_theme/templates/admin/config.html:40
+msgid ""
+"Shown above the hero title. A transparent PNG or SVG works best on the "
+"coloured background."
+msgstr "แสดงเหนือหัวข้อหลัก แนะนำไฟล์ PNG พื้นโปร่งใสหรือ SVG เพื่อให้เข้ากับพื้นหลังสี"

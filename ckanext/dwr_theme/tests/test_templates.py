@@ -34,7 +34,71 @@ class TestTheme:
     def test_hero_title_configurable(self, app):
         body = app.get("/").body
 
-        assert "DWR Open Data" in body
+        assert "<h1>DWR Open Data</h1>" in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_title", "Generic title")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_title_en", "English title")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_subtitle_en", "English subtitle")
+    def test_hero_texts_per_language(self, app):
+        body = app.get("/").body
+
+        assert "<h1>English title</h1>" in body
+        assert "English subtitle" in body
+
+    # Saving updates the in-memory config; these marks restore it afterwards
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_title_en", "")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_subtitle_en", "")
+    def test_hero_texts_editable_on_admin_config(self, app):
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+
+        body = app.get("/ckan-admin/config", headers=headers).body
+        assert 'name="ckanext.dwr_theme.hero_title_th"' in body
+        assert 'name="ckanext.dwr_theme.hero_subtitle_en"' in body
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={
+                "save": "",
+                "ckanext.dwr_theme.hero_title_en": "Water Data Hub",
+                "ckanext.dwr_theme.hero_subtitle_en": "Open water data",
+            },
+        )
+
+        body = app.get("/").body
+        assert "<h1>Water Data Hub</h1>" in body
+        assert "Open water data" in body
+
+    def test_hero_logo_hidden_by_default(self, app):
+        body = app.get("/").body
+
+        assert 'class="dwr-hero__logo"' not in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_logo", "/images/dwr-logo.png")
+    def test_hero_logo_configured(self, app):
+        body = app.get("/").body
+
+        assert '<img class="dwr-hero__logo" src="/images/dwr-logo.png"' in body
+
+    def test_hero_logo_field_on_admin_config(self, app):
+        sysadmin = factories.SysadminWithToken()
+
+        body = app.get("/ckan-admin/config", headers={"Authorization": sysadmin["token"]}).body
+
+        assert 'name="ckanext.dwr_theme.hero_logo"' in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_logo", "")
+    def test_hero_logo_url_saved_on_admin_config(self, app):
+        sysadmin = factories.SysadminWithToken()
+
+        app.post(
+            "/ckan-admin/config",
+            headers={"Authorization": sysadmin["token"]},
+            data={"save": "", "ckanext.dwr_theme.hero_logo": "https://example.com/logo.png"},
+        )
+
+        assert 'src="https://example.com/logo.png"' in app.get("/").body
 
     def test_font_size_control(self, app):
         body = app.get("/").body

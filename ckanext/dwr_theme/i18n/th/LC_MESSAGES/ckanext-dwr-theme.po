@@ -356,6 +356,22 @@ msgid "Remove logo"
 msgstr "ลบโลโก้"
 
 #: ckanext/dwr_theme/templates/admin/config.html
+msgid "Background image"
+msgstr "ภาพพื้นหลัง"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid ""
+"Photo shown faded behind the hero, over the brand colour. A wide landscape "
+"image (at least 1600px) works best."
+msgstr ""
+"ภาพที่แสดงจาง ๆ ด้านหลังส่วนหัวหน้าแรก ทับบนสีหลักของเว็บไซต์ "
+"แนะนำภาพแนวนอนขนาดกว้างอย่างน้อย 1600px"
+
+#: ckanext/dwr_theme/templates/admin/config.html
+msgid "Remove image"
+msgstr "ลบภาพ"
+
+#: ckanext/dwr_theme/templates/admin/config.html
 msgid "An uploaded file replaces the URL."
 msgstr "หากอัปโหลดไฟล์ จะใช้ไฟล์แทน URL"
 

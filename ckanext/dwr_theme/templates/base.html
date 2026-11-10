@@ -7,6 +7,11 @@
   <script>try{var s=localStorage.getItem("dwr-font-size");if(s==="lg"||s==="xl")document.documentElement.setAttribute("data-dwr-font-size",s);}catch(e){}</script>
 {% endblock %}
 
+{# Theme favicon (public/favicon.ico) unless ckan.favicon is set. #}
+{% block links %}
+  <link rel="shortcut icon" href="{{ h.url_for_static_or_external(h.dwr_theme_favicon()) }}">
+{% endblock %}
+
 {% block styles %}
   {{ super() }}
   {% if h.dwr_theme_web_fonts() %}

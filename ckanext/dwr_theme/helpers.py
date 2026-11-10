@@ -75,6 +75,18 @@ def dwr_theme_palette() -> dict[str, str]:
     }
 
 
+CKAN_DEFAULT_FAVICON = "/base/images/ckan.ico"
+DEFAULT_FAVICON = "/favicon.ico"
+
+
+def dwr_theme_favicon() -> str:
+    """``ckan.favicon`` if a sysadmin set one, else the theme's public/favicon.ico."""
+    favicon = (tk.config.get("ckan.favicon") or "").strip()
+    if favicon and favicon != CKAN_DEFAULT_FAVICON:
+        return favicon
+    return DEFAULT_FAVICON
+
+
 def dwr_theme_web_fonts() -> bool:
     return tk.asbool(tk.config.get("ckanext.dwr_theme.web_fonts"))
 
@@ -101,7 +113,7 @@ def dwr_theme_hero() -> dict[str, str]:
     return {
         "title": _localized("hero_title"),
         "subtitle": _localized("hero_subtitle"),
-        "image": tk.config.get("ckanext.dwr_theme.hero_image") or "",
+        "image": (tk.config.get("ckanext.dwr_theme.hero_image") or "").strip(),
         "logo": (tk.config.get("ckanext.dwr_theme.hero_logo") or "").strip(),
     }
 
@@ -201,6 +213,7 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_dataset_count": dwr_theme_dataset_count,
         "dwr_theme_primary_color": dwr_theme_primary_color,
         "dwr_theme_palette": dwr_theme_palette,
+        "dwr_theme_favicon": dwr_theme_favicon,
         "dwr_theme_web_fonts": dwr_theme_web_fonts,
         "dwr_theme_hero": dwr_theme_hero,
         "dwr_theme_footer": dwr_theme_footer,

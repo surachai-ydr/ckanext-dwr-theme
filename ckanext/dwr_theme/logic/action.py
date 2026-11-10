@@ -30,8 +30,8 @@ def dwr_theme_hello(context: Context, data_dict: DataDict) -> dict[str, Any]:
 # Image options editable on /ckan-admin/config, as
 # {option: (file upload field, "remove" checkbox field)}
 LOGO_FIELDS = {
-    f"ckanext.dwr_theme.{name}_logo": (f"{name}_logo_upload", f"clear_{name}_logo_upload")
-    for name in ("hero", "footer")
+    f"ckanext.dwr_theme.{name}": (f"{name}_upload", f"clear_{name}_upload")
+    for name in ("hero_logo", "hero_image", "footer_logo")
 }
 
 
@@ -39,7 +39,7 @@ LOGO_FIELDS = {
 def config_option_update(
     next_action: Any, context: Context, data_dict: DataDict
 ) -> dict[str, Any]:
-    """Store uploaded theme logos, like core does for the site logo.
+    """Store uploaded theme images (logos, hero background), like core does for the site logo.
 
     Core only handles the ``ckan.site_logo`` upload, so the files are saved
     here and each option is set to its public ``/uploads/admin/...`` URL (built

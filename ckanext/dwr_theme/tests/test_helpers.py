@@ -32,6 +32,17 @@ class TestPrimaryColor:
 
 
 @pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
+@pytest.mark.usefixtures("with_plugins")
+class TestFavicon:
+    def test_default_replaces_ckan_icon(self):
+        assert helpers.dwr_theme_favicon() == helpers.DEFAULT_FAVICON
+
+    @pytest.mark.ckan_config("ckan.favicon", "/images/custom.ico")
+    def test_configured(self):
+        assert helpers.dwr_theme_favicon() == "/images/custom.ico"
+
+
+@pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
 @pytest.mark.ckan_config("ckanext.dwr_theme.primary_color", "#fff")
 @pytest.mark.usefixtures("with_plugins")
 def test_palette_derives_shades():

@@ -238,7 +238,8 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
   inset: 0;
   z-index: -1;
 
-  background-image: url("https://storage-wp.thaipost.net/2025/12/S__29024433_0.jpg");
+  /* Set by home/index.html from ckanext.dwr_theme.hero_image (Sysadmin settings -> Config) */
+  background-image: var(--dwr-hero-image, none);
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

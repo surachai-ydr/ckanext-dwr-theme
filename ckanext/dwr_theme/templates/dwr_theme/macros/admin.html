@@ -17,38 +17,40 @@
 {% endmacro %}
 
 {#
-  Image upload/URL/remove for ``ckanext.dwr_theme.<name>_logo``.
+  Image upload/URL/remove for ``ckanext.dwr_theme.<name>`` (e.g. ``hero_logo``,
+  ``hero_image``; the option must be listed in action.LOGO_FIELDS).
 
   Plain inputs instead of form.image_upload: that macro's JS looks fields up
   by fixed ids shared with the site logo, so a second one on the page breaks.
   The file is saved by the chained config_option_update action.
 #}
-{% macro logo_input(name, label, help, data, errors) %}
-  {% set option = 'ckanext.dwr_theme.' ~ name ~ '_logo' %}
-  {% set upload_field = name ~ '_logo_upload' %}
-  {% set logo = data[option] %}
+{% macro image_input(name, label, help, data, errors, remove_label=None) %}
+  {% set option = 'ckanext.dwr_theme.' ~ name %}
+  {% set upload_field = name ~ '_upload' %}
+  {% set id = 'field-dwr-' ~ name | replace('_', '-') %}
+  {% set image = data[option] %}
   <div class="form-group control-medium">
-    <label class="form-label" for="field-dwr-{{ name }}-logo-upload">{{ label }}</label>
-    {% if logo %}
+    <label class="form-label" for="{{ id }}-upload">{{ label }}</label>
+    {% if image %}
       <div>
-        <img src="{{ h.url_for_static_or_external(logo) }}" alt="" style="max-height: 80px; max-width: 280px; padding: 8px; background: {{ h.dwr_theme_primary_color() }}; border-radius: 6px;">
+        <img src="{{ h.url_for_static_or_external(image) }}" alt="" style="max-height: 80px; max-width: 280px; padding: 8px; background: {{ h.dwr_theme_primary_color() }}; border-radius: 6px;">
         <label class="form-check" style="margin-top: 6px;">
           <input class="form-check-input" type="checkbox" name="clear_{{ upload_field }}" value="true">
-          {{ _('Remove logo') }}
+          {{ remove_label or _('Remove logo') }}
         </label>
       </div>
     {% endif %}
     {% if h.uploads_enabled() %}
-      <input id="field-dwr-{{ name }}-logo-upload" class="form-control" type="file" name="{{ upload_field }}" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp">
+      <input id="{{ id }}-upload" class="form-control" type="file" name="{{ upload_field }}" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp">
     {% endif %}
     {% if errors[upload_field] %}
       <span class="error-block">{{ errors[upload_field] | join(', ') }}</span>
     {% endif %}
   </div>
-  {{ form.input(option, id='field-dwr-' ~ name ~ '-logo-url',
+  {{ form.input(option, id=id ~ '-url',
                 label=label ~ ' (URL)' if h.uploads_enabled() else label,
-                placeholder='https://example.com/logo.png',
-                value=logo, error=errors[option], classes=['control-medium']) }}
+                placeholder='https://example.com/image.png',
+                value=image, error=errors[option], classes=['control-medium']) }}
   <p class="form-text text-muted">
     {{ help }}
     {% if h.uploads_enabled() %}{{ _('An uploaded file replaces the URL.') }}{% endif %}

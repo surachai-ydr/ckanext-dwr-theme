@@ -17,14 +17,17 @@
     {{ dwr_admin.localized_input('hero_title', _('Hero title'), _('Data Catalog System'), data, errors) }}
     {{ dwr_admin.localized_input('hero_subtitle', _('Hero subtitle'),
                                  _('Department of Water Resources, Ministry of Natural Resources and Environment'), data, errors) }}
-    {{ dwr_admin.logo_input('hero', _('Hero logo'),
-                            _('Shown above the hero title. A transparent PNG or SVG works best on the coloured background.'), data, errors) }}
+    {{ dwr_admin.image_input('hero_logo', _('Hero logo'),
+                             _('Shown above the hero title. A transparent PNG or SVG works best on the coloured background.'), data, errors) }}
+    {{ dwr_admin.image_input('hero_image', _('Background image'),
+                             _('Photo shown faded behind the hero, over the brand colour. A wide landscape image (at least 1600px) works best.'),
+                             data, errors, remove_label=_('Remove image')) }}
   </fieldset>
 
   <fieldset class="dwr-admin-footer">
     <legend>{{ _('Footer') }}</legend>
     {{ dwr_admin.localized_input('footer_name', _('Footer name'), g.site_title, data, errors) }}
-    {{ dwr_admin.logo_input('footer', _('Footer logo'),
-                            _('Replaces the droplet icon next to the footer name. A light or white logo works best on the dark footer.'), data, errors) }}
+    {{ dwr_admin.image_input('footer_logo', _('Footer logo'),
+                             _('Replaces the droplet icon next to the footer name. A light or white logo works best on the dark footer.'), data, errors) }}
   </fieldset>
 {% endblock %}

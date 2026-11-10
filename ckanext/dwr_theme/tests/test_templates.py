@@ -26,6 +26,10 @@ class TestTheme:
         assert "Reservoir levels" in body
         assert "Water Resources" in body
 
+    def test_favicon(self, app):
+        assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body
+        assert app.get("/favicon.ico").status_code == 200
+
     def test_header_and_footer_on_inner_pages(self, app):
         body = app.get("/dataset/").body
 
@@ -132,6 +136,33 @@ class TestTheme:
             data={"save": "", "ckanext.dwr_theme.hero_logo": logo, "clear_hero_logo_upload": "true"},
         )
         assert 'class="dwr-hero__logo"' not in app.get("/").body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hero_image", "")
+    def test_hero_image_uploaded_on_admin_config(self, app, ckan_config, monkeypatch, tmpdir):
+        monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmpdir))
+        monkeypatch.setattr(uploader, "_storage_path", str(tmpdir))
+        sysadmin = factories.SysadminWithToken()
+        headers = {"Authorization": sysadmin["token"]}
+
+        assert "--dwr-hero-image" not in app.get("/").body
+        assert 'name="hero_image_upload"' in app.get("/ckan-admin/config", headers=headers).body
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={"save": "", "hero_image_upload": (io.BytesIO(PNG_1X1), "hero.png")},
+        )
+
+        image = ckan_config["ckanext.dwr_theme.hero_image"]
+        assert re.match(r"^/uploads/admin/.*hero\.png$", image)
+        assert f"--dwr-hero-image: url('{image}')" in app.get("/").body
+
+        app.post(
+            "/ckan-admin/config",
+            headers=headers,
+            data={"save": "", "ckanext.dwr_theme.hero_image": image, "clear_hero_image_upload": "true"},
+        )
+        assert "--dwr-hero-image" not in app.get("/").body
 
     @pytest.mark.ckan_config("ckan.site_title", "My Portal")
     def test_footer_defaults_to_site_title(self, app):

@@ -46,7 +46,10 @@ groups:
           /ckan-admin/config (stored under /uploads/admin/), or any image URL.
         example: /images/dwr-logo.png
       - key: ckanext.dwr_theme.hero_image
-        description: Optional background image URL for the homepage hero.
+        description: |
+          Optional background image for the homepage hero, shown faded over the
+          brand colour. Usually uploaded on /ckan-admin/config (stored under
+          /uploads/admin/), or any image URL.
         example: /images/hero.jpg
       - key: ckanext.dwr_theme.home_datasets
         type: int

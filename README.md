@@ -158,9 +158,79 @@ adjust the `use = config:` line if yours lives elsewhere. Then:
 
 ## Translations
 
-    python setup.py extract_messages
-    python setup.py init_catalog -l th
+The theme supports **English** and **Thai**. Users switch between them with the
+language selector in the footer (CKAN puts the language in the URL, e.g. `/th/dataset`).
+
+### How it works
+
+- **English is the source language.** Every text in templates and Python code is written
+  in English and wrapped in `_()`. CKAN shows that English text as-is for English users.
+- **Thai lives in a catalog file.** For Thai users CKAN looks up the English text in
+  `ckanext/dwr_theme/i18n/th/LC_MESSAGES/ckanext-dwr-theme.po` and shows the Thai `msgstr`.
+  If no Thai translation exists (empty `msgstr ""`), the English text is shown instead.
+
+### File structure
+
+    ckanext/dwr_theme/i18n/
+    ├── ckanext-dwr-theme.pot              # template: every English string (no translations)
+    └── th/LC_MESSAGES/
+        ├── ckanext-dwr-theme.po           # Thai translations (edit this one)
+        └── ckanext-dwr-theme.mo           # compiled binary CKAN reads (generated, not in git)
+
+The catalog domain `ckanext-dwr-theme` is set in `setup.cfg` and by `ITranslation` in `plugin.py`.
+
+### Adding translatable text
+
+1. Write the English text in the template and wrap it in `_()`:
+
+       {# templates/footer.html #}
+       <span>{{ _('Powered by') }} <a href="https://dwr.go.th">{{ _('Department of Water Resources') }}</a></span>
+
+   In Python (helpers, validators, views):
+
+       from ckan.plugins.toolkit import _
+       raise toolkit.Invalid(_('Must not contain digits'))
+
+   For text containing values, translate the sentence with a placeholder, not pieces of it:
+
+       {{ _('{count} datasets').format(count=total) }}
+
+2. Add the Thai translation to `th/LC_MESSAGES/ckanext-dwr-theme.po`.
+   The `msgid` must match the English text in `_()` **exactly** (case, spaces, punctuation):
+
+       #: ckanext/dwr_theme/templates/footer.html:66
+       msgid "Department of Water Resources"
+       msgstr "กรมทรัพยากรน้ำ"
+
+   You can add the entry by hand, or regenerate the files (needs `pip install babel`):
+
+       python setup.py extract_messages   # rescan code -> update the .pot
+       python setup.py update_catalog     # merge new strings from .pot into th .po
+
+   After `update_catalog`, check for entries marked `#, fuzzy`: these are guesses and are
+   **ignored** until you review the translation and remove the `fuzzy` line.
+
+3. Compile and restart CKAN:
+
+       python setup.py compile_catalog    # .po -> .mo
+       # then restart CKAN (or the ckan container) to load the new .mo
+
+The `.mo` file is ignored by git, so run `compile_catalog` on every server after deploying.
+
+### Text that admins edit (not in `.po`)
+
+Some text is configured at runtime instead of translated in code, with a separate field per language
+in **Sysadmin settings → Config**: the homepage hero title/subtitle and the footer name
+(see [Theme](#theme)). Use those fields for site-specific wording, and `.po` files for fixed UI text.
+
+### Adding another language
+
+    python setup.py init_catalog -l <code>   # e.g. -l lo creates i18n/lo/LC_MESSAGES/...
+    # translate the new .po, then:
     python setup.py compile_catalog
+
+The language must also be listed in `ckan.locales_offered` in `ckan.ini`, e.g.
+`ckan.locales_offered = th en`.
 
 ## License
 

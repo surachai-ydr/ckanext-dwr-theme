@@ -308,3 +308,7 @@ msgstr ""
 msgid "Popular"
 msgstr ""
 
+#: ckanext/dwr_theme/templates/footer.html:66
+msgid "Department of Water Resources"
+msgstr ""
+

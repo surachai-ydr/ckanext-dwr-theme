@@ -138,25 +138,6 @@
       {% endif %}
     {% endblock %}
 
-    {% block dwr_api %}
-      <section class="dwr-section">
-        <div class="dwr-container">
-          <div class="dwr-cta">
-            <div class="dwr-cta__text">
-              <h2>{{ _('Build with our data') }}</h2>
-              <p>{{ _('Every dataset is also available as JSON through the CKAN Action API.') }}</p>
-            </div>
-            <div class="dwr-cta__actions">
-              <code>GET {{ h.url_for('api.action', ver=3, logic_function='package_search', qualified=True) }}?q=</code>
-              <a class="dwr-btn dwr-btn--light" href="https://docs.ckan.org/en/2.10/api/" target="_blank" rel="noopener">
-                {{ icons.icon('code') }} {{ _('API documentation') }}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-    {% endblock %}
-
     {% block dwr_modal %}
       {% set modal = h.dwr_theme_home_modal() %}
       {% if modal %}

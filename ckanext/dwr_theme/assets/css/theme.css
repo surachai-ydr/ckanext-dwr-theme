@@ -261,7 +261,7 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
     transparent 100%
   );
 
-  opacity: 0.35;
+  /* opacity: 0.35; */
 }
 .dwr-hero::after {
   content: ""; position: absolute; z-index: -1;

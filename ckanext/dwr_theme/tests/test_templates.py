@@ -45,6 +45,7 @@ class TestTheme:
         assert 'data-module="dwr-theme-load-more"' in body
         assert 'data-module-url="/dwr-theme/home/group"' in body
         assert 'data-module-offset="2"' in body
+        assert "Showing <span data-shown>2</span> of 3" in body
 
     def test_favicon(self, app):
         assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body

@@ -18,7 +18,8 @@
       {{ _('Load more') }}
     </a>
     <span class="dwr-load-more__count">
-      {{ _('Showing {shown} of {total}').format(shown='<span data-shown>%d</span>' % page.next_offset, total=page.total) | safe }}
+      {#- _() returns Markup, whose format() escapes plain-string arguments. #}
+      {{ _('Showing {shown} of {total}').format(shown=h.literal('<span data-shown>%d</span>' % page.next_offset), total=page.total) | safe }}
     </span>
   </div>
 {% endif %}

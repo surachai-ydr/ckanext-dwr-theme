@@ -285,6 +285,16 @@ in **Sysadmin settings → Config**: the homepage hero title/subtitle and the fo
 The language must also be listed in `ckan.locales_offered` in `ckan.ini`, e.g.
 `ckan.locales_offered = th en`.
 
+
+### Re-Create mo file for language translation
+
+    cd /usr/lib/ckan/default/src/ckanext-dwr-theme
+    catalog=ckanext/dwr_theme/i18n/th/LC_MESSAGES/ckanext-dwr-theme
+
+    /usr/lib/ckan/default/bin/pybabel compile -i "$catalog.po" -o "$catalog.mo"
+
+    sudo supervisorctl restart 'ckan-uwsgi:*'
+
 ## License
 
 [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)

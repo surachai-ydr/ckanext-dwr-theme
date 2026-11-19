@@ -183,30 +183,51 @@ def dwr_theme_popular_tags(limit: int = 6) -> list[dict[str, Any]]:
     return sorted(items, key=lambda item: item["count"], reverse=True)[:limit]
 
 
-def dwr_theme_featured_organizations(limit: int | None = None) -> list[dict[str, Any]]:
-    if limit is None:
-        limit = tk.config.get("ckanext.dwr_theme.home_organizations")
-    try:
-        return tk.get_action("organization_list")(
-            {}, {"all_fields": True, "sort": "package_count desc", "limit": limit}
-        )
-    except SearchError:
-        log.warning("Search index unavailable, cannot list organizations")
-        return []
+HOME_GROUP_KINDS = ("organization", "group")
 
 
-def dwr_theme_featured_groups(limit: int | None = None) -> list[dict[str, Any]]:
-    if limit is None:
-        limit = tk.config.get("ckanext.dwr_theme.home_groups")
-    # Sorted here rather than with sort="package_count desc", which leaves out
-    # groups that have no datasets yet.
+def dwr_theme_home_groups(kind: str, offset: int = 0) -> dict[str, Any]:
+    """One page of the homepage organization or group cards, most datasets first.
+
+    kind is "organization" or "group". Returns {"results": [...], "total": n,
+    "next_offset": offset of the next page, or None on the last page}.
+
+    Sorted here rather than with sort="package_count desc", which leaves out
+    groups that have no datasets yet and can't page past
+    ckan.group_and_organization_list_all_fields_max.
+    """
+    is_org = kind == "organization"
+    list_action = tk.get_action(f"{kind}_list")
+    limit = tk.config.get(
+        "ckanext.dwr_theme.home_organizations" if is_org else "ckanext.dwr_theme.home_groups"
+    )
+    facet = "organization" if is_org else "groups"
+    empty = {"results": [], "total": 0, "next_offset": None}
     try:
-        groups = tk.get_action("group_list")({}, {"all_fields": True})
+        names = list_action({}, {})
+        facets = tk.get_action("package_search")(
+            {}, {"rows": 0, "facet.field": [facet], "facet.limit": -1}
+        )["search_facets"]
     except SearchError:
-        log.warning("Search index unavailable, cannot list groups")
-        return []
-    groups.sort(key=lambda group: group["package_count"], reverse=True)
-    return groups[:limit]
+        log.warning("Search index unavailable, cannot list %ss", kind)
+        return empty
+    counts = {item["name"]: item["count"] for item in facets.get(facet, {}).get("items", [])}
+    # names come in title order, which the stable sort keeps for equal counts.
+    names.sort(key=lambda name: counts.get(name, 0), reverse=True)
+
+    page = names[offset:offset + limit]
+    if not page:
+        return {**empty, "total": len(names)}
+    results = list_action(
+        {}, {"all_fields": True, "organizations" if is_org else "groups": page}
+    )
+    results.sort(key=lambda group: page.index(group["name"]))
+    end = offset + len(page)
+    return {
+        "results": results,
+        "total": len(names),
+        "next_offset": end if end < len(names) else None,
+    }
 
 
 def dwr_theme_gdc_enabled() -> bool:
@@ -236,8 +257,7 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_home_modal": dwr_theme_home_modal,
         "dwr_theme_recent_datasets": dwr_theme_recent_datasets,
         "dwr_theme_popular_tags": dwr_theme_popular_tags,
-        "dwr_theme_featured_organizations": dwr_theme_featured_organizations,
-        "dwr_theme_featured_groups": dwr_theme_featured_groups,
+        "dwr_theme_home_groups": dwr_theme_home_groups,
         "dwr_theme_initials": dwr_theme_initials,
         "dwr_theme_gdc_enabled": dwr_theme_gdc_enabled,
     }

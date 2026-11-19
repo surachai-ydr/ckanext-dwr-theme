@@ -57,12 +57,16 @@ groups:
         description: Number of recently updated datasets shown on the homepage.
       - key: ckanext.dwr_theme.home_organizations
         type: int
-        default: 8
-        description: Number of organizations shown on the homepage.
+        default: 10
+        description: >
+          Number of organizations shown on the homepage, and loaded per click
+          of its "Load more" button.
       - key: ckanext.dwr_theme.home_groups
         type: int
-        default: 8
-        description: Number of groups shown on the homepage.
+        default: 10
+        description: >
+          Number of groups shown on the homepage, and loaded per click of its
+          "Load more" button.
       - key: ckanext.dwr_theme.web_fonts
         type: bool
         default: true

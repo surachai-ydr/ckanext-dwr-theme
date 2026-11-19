@@ -1,0 +1,9 @@
+{#
+  Cards for a list of organizations or groups: the homepage grids and the
+  pages their "Load more" buttons fetch.
+
+  groups - list of dicts as returned by organization_list/group_list(all_fields=True)
+#}
+{% for group in groups %}
+  {% snippet 'dwr_theme/snippets/group_card.html', group=group %}
+{% endfor %}

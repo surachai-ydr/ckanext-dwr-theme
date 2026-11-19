@@ -1,0 +1,24 @@
+{#
+  "Load more" button under a homepage organization/group grid. Each click
+  appends the next page of cards (dwr-theme-load-more JS module); without JS
+  it links to the full listing page. Renders nothing on the last page.
+
+  kind   - "organization" or "group"
+  page   - result of h.dwr_theme_home_groups(kind)
+  target - CSS selector of the grid to append cards to
+#}
+{% if page.next_offset %}
+  <div class="dwr-load-more">
+    <a class="dwr-btn dwr-btn--ghost" href="{{ h.url_for(kind ~ '.index') }}"
+       data-module="dwr-theme-load-more"
+       data-module-url="{{ h.url_for('dwr_theme.home_cards', kind=kind) }}"
+       data-module-offset="{{ page.next_offset }}"
+       data-module-target="{{ target }}"
+       data-module-loading="{{ _('Loading...') }}">
+      {{ _('Load more') }}
+    </a>
+    <span class="dwr-load-more__count">
+      {{ _('Showing {shown} of {total}').format(shown='<span data-shown>%d</span>' % page.next_offset, total=page.total) | safe }}
+    </span>
+  </div>
+{% endif %}

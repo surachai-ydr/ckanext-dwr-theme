@@ -177,3 +177,64 @@ ckan.module("dwr-theme-home-modal", function ($) {
     },
   };
 });
+
+/* Homepage "Load more" button under the organization/group grids: fetches
+ * the next page of cards from dwr_theme.home_cards and appends it to the
+ * grid. The element is a link to the full listing page, followed if JS is
+ * off or the request fails.
+ *
+ * Usage: <a href="/group/" data-module="dwr-theme-load-more"
+ *           data-module-url="/dwr-theme/home/group" data-module-offset="10"
+ *           data-module-target="#grid" data-module-loading="Loading...">Load more</a>
+ */
+ckan.module("dwr-theme-load-more", function ($) {
+  "use strict";
+
+  return {
+    options: {
+      url: null,
+      offset: 0,
+      target: null,
+      loading: "Loading...",
+    },
+
+    initialize: function () {
+      $.proxyAll(this, /_on/);
+      this.grid = $(this.options.target);
+      this.wrapper = this.el.closest(".dwr-load-more");
+      this.label = this.el.text();
+      this.el.on("click", this._onClick);
+    },
+
+    _onClick: function (event) {
+      event.preventDefault();
+      if (this.busy) {
+        return;
+      }
+      this.busy = true;
+      this.el.attr("aria-busy", "true").addClass("is-loading").text(this.options.loading);
+      $.getJSON(this.options.url, { offset: this.options.offset })
+        .done(this._onLoaded)
+        .fail(this._onFailed);
+    },
+
+    _onLoaded: function (data) {
+      var first = this.grid.children().length;
+      this.grid.append(data.html);
+      this.busy = false;
+      this.el.removeAttr("aria-busy").removeClass("is-loading").text(this.label);
+      if (data.next_offset) {
+        this.options.offset = data.next_offset;
+        this.wrapper.find("[data-shown]").text(data.next_offset);
+      } else {
+        // The button goes away, so move keyboard focus to the first new card.
+        this.wrapper.remove();
+        this.grid.children().eq(first).find("a").first().trigger("focus");
+      }
+    },
+
+    _onFailed: function () {
+      window.location.href = this.el.attr("href");
+    },
+  };
+});

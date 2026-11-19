@@ -382,17 +382,40 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
 }
 .dwr-card__date { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 
-.dwr-org { align-items: center; text-align: center; padding: 28px 18px; }
-.dwr-org__logo {
-  width: 76px; height: 76px; margin-bottom: 14px; padding: 8px;
-  object-fit: contain; background: var(--dwr-bg); border-radius: 18px;
+/* Organization/group card: media area on top (logo or initials), text below. */
+.dwr-org { padding: 0; overflow: hidden; text-align: center; }
+.dwr-org__media {
+  display: grid; place-items: center;
+  aspect-ratio: 16 / 10; padding: 20px;
+  background: linear-gradient(135deg, var(--dwr-primary-soft), var(--dwr-bg));
+  border-bottom: 1px solid var(--dwr-border);
 }
+.dwr-org--image .dwr-org__media { background: var(--dwr-bg); }
+.dwr-org__media img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  transition: transform .3s;
+}
+.dwr-org:hover .dwr-org__media img { transform: scale(1.05); }
 .dwr-org__initials {
-  display: grid; place-items: center; padding: 0;
-  color: var(--dwr-primary); background: var(--dwr-primary-soft);
+  display: grid; place-items: center;
+  width: 72px; height: 72px; border-radius: 20px;
+  color: var(--dwr-primary); background: #fff; box-shadow: var(--dwr-shadow-sm);
   font-size: calc(24px * var(--dwr-font-scale)); font-weight: 800;
 }
+.dwr-org__body {
+  display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center;
+  padding: 16px 16px 20px;
+}
+.dwr-org__body .dwr-card__title { margin-bottom: 4px; }
 .dwr-org__count { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+
+.dwr-load-more {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  margin-top: 28px;
+}
+.dwr-load-more .dwr-btn { min-width: 180px; border: 1px solid var(--dwr-border); background: #fff; }
+.dwr-load-more .dwr-btn.is-loading { opacity: .7; cursor: progress; }
+.dwr-load-more__count { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
 
 .dwr-empty {
   padding: 40px; text-align: center; color: var(--dwr-muted);
@@ -705,7 +728,8 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
   .dwr-facet[open] > :not(summary), .dwr-modal[open] { animation: none; }
-  .dwr-card:hover, .dwr-stat:hover, .dataset-item:hover, .media-item:hover, .dwr-btn:hover { transform: none; }
+  .dwr-card:hover, .dwr-stat:hover, .dataset-item:hover, .media-item:hover, .dwr-btn:hover,
+  .dwr-org:hover .dwr-org__media img { transform: none; }
 }
 
 

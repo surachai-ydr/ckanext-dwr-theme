@@ -320,3 +320,19 @@ msgstr ""
 #: ckanext/dwr_theme/templates/home/index.html:95
 msgid "View all groups"
 msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:18
+msgid "Load more"
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:16
+msgid "Loading..."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:21
+msgid "Showing {shown} of {total}"
+msgstr ""
+
+#: ckanext/dwr_theme/views.py:44
+msgid "Invalid offset"
+msgstr ""

@@ -400,3 +400,19 @@ msgstr "กลุ่มข้อมูลจัดตามหัวข้อ"
 #: ckanext/dwr_theme/templates/home/index.html:95
 msgid "View all groups"
 msgstr "ดูกลุ่มทั้งหมด"
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:18
+msgid "Load more"
+msgstr "โหลดเพิ่มเติม"
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:16
+msgid "Loading..."
+msgstr "กำลังโหลด..."
+
+#: ckanext/dwr_theme/templates/dwr_theme/snippets/load_more.html:21
+msgid "Showing {shown} of {total}"
+msgstr "แสดง {shown} จาก {total}"
+
+#: ckanext/dwr_theme/views.py:44
+msgid "Invalid offset"
+msgstr "ค่า offset ไม่ถูกต้อง"

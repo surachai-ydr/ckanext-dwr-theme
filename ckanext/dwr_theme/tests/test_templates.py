@@ -30,6 +30,21 @@ class TestTheme:
         assert "Water Resources" in body
         # The recently updated datasets section is hidden.
         assert "Reservoir levels" not in body
+        # Everything fits on one page, so there is nothing to load.
+        assert "dwr-theme-load-more" not in body
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_groups", "2")
+    def test_homepage_groups_load_more(self, app):
+        for title in ["Alpha", "Beta", "Gamma"]:
+            factories.Group(title=title)
+
+        body = app.get("/").body
+
+        assert "Alpha" in body and "Beta" in body
+        assert "Gamma" not in body
+        assert 'data-module="dwr-theme-load-more"' in body
+        assert 'data-module-url="/dwr-theme/home/group"' in body
+        assert 'data-module-offset="2"' in body
 
     def test_favicon(self, app):
         assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body

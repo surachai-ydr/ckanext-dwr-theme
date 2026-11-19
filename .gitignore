@@ -10,6 +10,7 @@ dist/
 coverage.xml
 htmlcov/
 *.mo
+!ckanext/dwr_theme/i18n/**/*.mo
 .venv/
 venv/
 .idea/

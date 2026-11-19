@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import logging
 import re
+from importlib import metadata
 from typing import Any, Callable
 
 import ckan.plugins as plugins
@@ -230,6 +231,14 @@ def dwr_theme_home_groups(kind: str, offset: int = 0) -> dict[str, Any]:
     }
 
 
+def dwr_theme_version() -> str:
+    """Installed version of this extension (setup.cfg's version), e.g. "0.0.1"."""
+    try:
+        return metadata.version("ckanext-dwr-theme")
+    except metadata.PackageNotFoundError:
+        return ""
+
+
 def dwr_theme_gdc_enabled() -> bool:
     """True when ckanext-thai_gdc is loaded, so templates can use its helpers."""
     return plugins.plugin_loaded("thai_gdc")
@@ -260,4 +269,5 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_home_groups": dwr_theme_home_groups,
         "dwr_theme_initials": dwr_theme_initials,
         "dwr_theme_gdc_enabled": dwr_theme_gdc_enabled,
+        "dwr_theme_version": dwr_theme_version,
     }

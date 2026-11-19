@@ -416,3 +416,7 @@ msgstr "แสดง {shown} จาก {total}"
 #: ckanext/dwr_theme/views.py:44
 msgid "Invalid offset"
 msgstr "ค่า offset ไม่ถูกต้อง"
+
+#: ckanext/dwr_theme/templates/footer.html:71
+msgid "Theme version {version}"
+msgstr "ธีมเวอร์ชัน {version}"

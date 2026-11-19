@@ -79,3 +79,9 @@ class TestHomeModal:
         before = helpers.dwr_theme_home_modal()["key"]
         monkeypatch.setitem(ckan_config, "ckanext.dwr_theme.home_modal_text", "New")
         assert helpers.dwr_theme_home_modal()["key"] != before
+
+
+def test_version_matches_installed_package():
+    from importlib import metadata
+
+    assert helpers.dwr_theme_version() == metadata.version("ckanext-dwr-theme")

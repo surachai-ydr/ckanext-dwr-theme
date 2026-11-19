@@ -336,3 +336,7 @@ msgstr ""
 #: ckanext/dwr_theme/views.py:44
 msgid "Invalid offset"
 msgstr ""
+
+#: ckanext/dwr_theme/templates/footer.html:71
+msgid "Theme version {version}"
+msgstr ""

@@ -47,6 +47,12 @@ class TestTheme:
         assert 'data-module-offset="2"' in body
         assert "Showing <span data-shown>2</span> of 3" in body
 
+    def test_footer_shows_theme_version(self, app):
+        from ckanext.dwr_theme import helpers
+
+        body = app.get("/").body
+        assert f"Theme version {helpers.dwr_theme_version()}" in body
+
     def test_favicon(self, app):
         assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body
         assert app.get("/favicon.ico").status_code == 200

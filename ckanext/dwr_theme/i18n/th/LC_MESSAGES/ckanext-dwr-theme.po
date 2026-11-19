@@ -392,3 +392,11 @@ msgid ""
 "Replaces the droplet icon next to the footer name. A light or white logo "
 "works best on the dark footer."
 msgstr "ใช้แทนไอคอนหยดน้ำข้างชื่อส่วนท้าย แนะนำโลโก้สีอ่อนหรือสีขาวเพื่อให้เข้ากับพื้นหลังสีเข้ม"
+
+#: ckanext/dwr_theme/templates/home/index.html:92
+msgid "Datasets organized by topic."
+msgstr "กลุ่มข้อมูลจัดตามหัวข้อ"
+
+#: ckanext/dwr_theme/templates/home/index.html:95
+msgid "View all groups"
+msgstr "ดูกลุ่มทั้งหมด"

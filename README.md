@@ -26,6 +26,55 @@ What's included:
 
 Python 3.8+.
 
+## Run locally with Docker
+
+The quickest way to see the theme: a full CKAN 2.10 site (CKAN, PostgreSQL, Solr, Redis)
+with this extension installed, using `docker-compose.dev.yml`.
+
+1. Install and start [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+2. In this folder, start the site (the first run downloads the images and takes a few minutes):
+
+        docker compose -f docker-compose.dev.yml up -d
+
+3. Open http://localhost:5000 and log in as `admin` / `admin123456` (sysadmin).
+   The site starts in Thai; switch to English with the language selector in the footer.
+
+Day-to-day commands (run in this folder):
+
+| Command | What it does |
+|---|---|
+| `docker compose -f docker-compose.dev.yml up -d` | Start the site |
+| `docker compose -f docker-compose.dev.yml down` | Stop the site (data is kept) |
+| `docker compose -f docker-compose.dev.yml restart ckan` | Reload after Python, `.po` or config changes |
+| `docker compose -f docker-compose.dev.yml logs -f ckan` | Follow the CKAN log |
+| `docker compose -f docker-compose.dev.yml ps` | Show container status |
+
+This folder is mounted into the container, so template and CSS changes show on browser refresh.
+
+### Your data
+
+Datasets, groups, users, the search index and uploaded files are stored in named Docker
+volumes (`ckanext-dwr-theme_pg_data`, `ckanext-dwr-theme_solr_data`,
+`ckanext-dwr-theme_ckan_storage`), so they survive `restart`, `down` and `up`.
+
+> **Warning:** `docker compose -f docker-compose.dev.yml down -v`, or deleting those volumes
+> in Docker Desktop, permanently deletes all data.
+
+Back up the database before big changes:
+
+    docker compose -f docker-compose.dev.yml exec -T postgres pg_dump -U postgres --clean --if-exists ckan_test > backup.sql
+
+Restore a backup into the running site (replaces the current data), then rebuild the search index:
+
+    docker compose -f docker-compose.dev.yml exec -T postgres psql -U postgres ckan_test < backup.sql
+    docker compose -f docker-compose.dev.yml exec ckan bash -c 'ckan -c $CKAN_INI search-index rebuild'
+
+The test suite (see [Tests](#tests)) runs as a separate Docker project, so running tests
+never touches this site's data.
+
+This setup is for local development only (debug mode, test passwords); don't expose it publicly.
+
 ## Installation
 
 1. Activate your CKAN virtualenv:

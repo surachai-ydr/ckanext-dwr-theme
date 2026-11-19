@@ -18,13 +18,18 @@ PNG_1X1 = base64.b64decode(
 class TestTheme:
     def test_homepage(self, app):
         organization = factories.Organization(title="Water Resources")
-        factories.Dataset(title="Reservoir levels", owner_org=organization["id"])
+        group = factories.Group(title="Groundwater")
+        factories.Dataset(
+            title="Reservoir levels", owner_org=organization["id"], groups=[{"id": group["id"]}]
+        )
 
         body = app.get("/").body
 
         assert 'class="dwr-hero"' in body
-        assert "Reservoir levels" in body
+        assert "Groundwater" in body
         assert "Water Resources" in body
+        # The recently updated datasets section is hidden.
+        assert "Reservoir levels" not in body
 
     def test_favicon(self, app):
         assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body

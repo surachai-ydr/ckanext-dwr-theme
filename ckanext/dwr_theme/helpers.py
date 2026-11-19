@@ -195,6 +195,20 @@ def dwr_theme_featured_organizations(limit: int | None = None) -> list[dict[str,
         return []
 
 
+def dwr_theme_featured_groups(limit: int | None = None) -> list[dict[str, Any]]:
+    if limit is None:
+        limit = tk.config.get("ckanext.dwr_theme.home_groups")
+    # Sorted here rather than with sort="package_count desc", which leaves out
+    # groups that have no datasets yet.
+    try:
+        groups = tk.get_action("group_list")({}, {"all_fields": True})
+    except SearchError:
+        log.warning("Search index unavailable, cannot list groups")
+        return []
+    groups.sort(key=lambda group: group["package_count"], reverse=True)
+    return groups[:limit]
+
+
 def dwr_theme_gdc_enabled() -> bool:
     """True when ckanext-thai_gdc is loaded, so templates can use its helpers."""
     return plugins.plugin_loaded("thai_gdc")
@@ -223,6 +237,7 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_recent_datasets": dwr_theme_recent_datasets,
         "dwr_theme_popular_tags": dwr_theme_popular_tags,
         "dwr_theme_featured_organizations": dwr_theme_featured_organizations,
+        "dwr_theme_featured_groups": dwr_theme_featured_groups,
         "dwr_theme_initials": dwr_theme_initials,
         "dwr_theme_gdc_enabled": dwr_theme_gdc_enabled,
     }

@@ -30,7 +30,7 @@
       <section class="dwr-hero"{% if hero.image %} style="--dwr-hero-image: url('{{ h.url_for_static_or_external(hero.image) }}')"{% endif %}>
         <div class="dwr-container">
           <div class="dwr-hero__inner">
-            <span class="dwr-hero__eyebrow">{{ icons.icon('droplet') }} {{ _('Open Data Portal') }}</span>
+            <!-- <span class="dwr-hero__eyebrow">{{ icons.icon('droplet') }} {{ _('Open Data Portal') }}</span> -->
             {% if hero.logo %}
               <img class="dwr-hero__logo" src="{{ h.url_for_static_or_external(hero.logo) }}" alt="">
             {% endif %}
@@ -82,6 +82,31 @@
       </section>
     {% endblock %}
 
+    {% block dwr_groups %}
+      {% set groups = h.dwr_theme_featured_groups() %}
+      {% if groups %}
+        <section class="dwr-section">
+          <div class="dwr-container">
+            <div class="dwr-section__head">
+              <div>
+                <h2>{{ _('Groups') }}</h2>
+                <p>{{ _('Datasets organized by topic.') }}</p>
+              </div>
+              <a class="dwr-link-arrow" href="{{ h.url_for('group.index') }}">
+                {{ _('View all groups') }} {{ icons.icon('arrow-right') }}
+              </a>
+            </div>
+            <div class="dwr-grid dwr-grid--orgs">
+              {% for group in groups %}
+                {% snippet 'dwr_theme/snippets/group_card.html', group=group %}
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      {% endif %}
+    {% endblock %}
+
+    {# Hidden: recently updated datasets, replaced by the groups list above.
     {% block dwr_recent_datasets %}
       {% set datasets = h.dwr_theme_recent_datasets() %}
       <section class="dwr-section">
@@ -113,6 +138,7 @@
         </div>
       </section>
     {% endblock %}
+    #}
 
     {% block dwr_organizations %}
       {% set organizations = h.dwr_theme_featured_organizations() %}

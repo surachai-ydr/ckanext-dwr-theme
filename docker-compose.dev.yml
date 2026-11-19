@@ -1,7 +1,8 @@
 # Run a local CKAN site with this theme enabled, at http://localhost:5000
 #
 #   docker compose -f docker-compose.dev.yml up
-#   docker compose -f docker-compose.dev.yml down
+#   docker compose -f docker-compose.dev.yml down      # keeps data
+#   docker compose -f docker-compose.dev.yml down -v   # DELETES all data
 #
 # Log in as admin / admin123456. Template and asset changes show on refresh;
 # restart the ckan service after Python changes:
@@ -15,6 +16,7 @@ services:
       - "5000:5000"
     volumes:
       - .:/srv/app/src_extensions/ckanext-dwr-theme
+      - ckan_storage:/var/lib/ckan
     environment:
       CKAN_SITE_URL: http://localhost:5000
       CKAN_SITE_ID: default
@@ -31,6 +33,7 @@ services:
         set -e
         cd /srv/app/src_extensions/ckanext-dwr-theme
         pip install -q -r requirements.txt -e .
+        python setup.py -q compile_catalog
         ckan config-tool $$CKAN_INI \
           "ckan.plugins = activity image_view text_view datatables_view dwr-theme" \
           "ckan.site_url = http://localhost:5000" \
@@ -57,12 +60,16 @@ services:
 
   solr:
     image: ckan/ckan-solr:2.10-solr9
+    volumes:
+      - solr_data:/var/solr
 
   redis:
     image: redis:7
 
   postgres:
     image: ckan/ckan-postgres-dev:2.10
+    volumes:
+      - pg_data:/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -72,3 +79,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+# Data kept between restarts and `down`. Only `down -v` deletes it.
+volumes:
+  pg_data:
+  solr_data:
+  ckan_storage:

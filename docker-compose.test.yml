@@ -7,6 +7,9 @@
 # Extra arguments are passed to pytest, e.g.:
 #
 #   docker compose -f docker-compose.test.yml run --rm ckan ckanext/dwr_theme/tests/test_helpers.py -k primary
+#
+# Own project name, so tests never reuse (and wipe) the dev stack's database.
+name: ckanext-dwr-theme-test
 services:
   ckan:
     image: ckan/ckan-dev:2.10

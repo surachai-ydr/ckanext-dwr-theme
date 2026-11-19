@@ -435,7 +435,7 @@ a:hover, a:focus { color: var(--dwr-primary-dark); text-decoration: underline; t
    Footer
    -------------------------------------------------------------------------- */
 
-.dwr-footer { padding: 64px 0 0; color: #94a3b8; background: var(--dwr-footer-bg); font-size: calc(14px * var(--dwr-font-scale)); }
+.dwr-footer { margin-top: 64px; padding: 64px 0 0; color: #94a3b8; background: var(--dwr-footer-bg); font-size: calc(14px * var(--dwr-font-scale)); }
 .dwr-footer a { color: #cbd5e1; }
 .dwr-footer a:hover, .dwr-footer a:focus { color: #fff; }
 .dwr-footer__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 40px; }

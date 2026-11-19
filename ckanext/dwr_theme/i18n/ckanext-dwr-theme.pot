@@ -312,3 +312,11 @@ msgstr ""
 msgid "Department of Water Resources"
 msgstr ""
 
+
+#: ckanext/dwr_theme/templates/home/index.html:92
+msgid "Datasets organized by topic."
+msgstr ""
+
+#: ckanext/dwr_theme/templates/home/index.html:95
+msgid "View all groups"
+msgstr ""

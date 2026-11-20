@@ -44,7 +44,7 @@ msgstr "ชุดข้อมูล"
 #: ckanext/dwr_theme/templates/home/index.html:69
 #: ckanext/dwr_theme/templates/home/index.html:122
 msgid "Organizations"
-msgstr "หน่วยงาน"
+msgstr "องค์กร"
 
 #: ckanext/dwr_theme/templates/footer.html:23
 #: ckanext/dwr_theme/templates/header.html:40
@@ -242,11 +242,11 @@ msgstr "เพิ่มชุดข้อมูลแรก"
 
 #: ckanext/dwr_theme/templates/home/index.html:123
 msgid "Publishers sharing data on this portal."
-msgstr "หน่วยงานที่เผยแพร่ข้อมูลบนระบบนี้"
+msgstr "องค์กรที่เผยแพร่ข้อมูลบนระบบนี้"
 
 #: ckanext/dwr_theme/templates/home/index.html:126
 msgid "View all organizations"
-msgstr "ดูหน่วยงานทั้งหมด"
+msgstr "ดูองค์กรทั้งหมด"
 
 #: ckanext/dwr_theme/templates/home/index.html:144
 msgid "Build with our data"

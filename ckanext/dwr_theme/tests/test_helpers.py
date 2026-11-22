@@ -85,3 +85,12 @@ def test_version_matches_installed_package():
     from importlib import metadata
 
     assert helpers.dwr_theme_version() == metadata.version("ckanext-dwr-theme")
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("20 พฤศจิกายน ค.ศ. 2026", "20 พฤศจิกายน พ.ศ. 2569"),
+    ("พฤศจิกายน 20, 2026, 14:05 (UTC)", "พฤศจิกายน 20, 2569, 14:05 (UTC)"),
+])
+def test_to_buddhist_era(text, expected):
+    assert helpers.to_buddhist_era(text) == expected
+

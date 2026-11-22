@@ -1,0 +1,26 @@
+{#
+  Language switch: one plain link per offered locale (ckan.locales_offered)
+  pointing at the current page in that language, so it works without JS and
+  needs a single click (CKAN's own selector is a dropdown + form POST).
+
+  variant - "compact" (header: short codes, e.g. TH | EN) or "list" (footer:
+            full language names)
+#}
+{% set variant = variant or 'list' %}
+{% set current = h.lang() %}
+<nav class="dwr-lang dwr-lang--{{ variant }}" aria-label="{{ _('Language') }}">
+  {% for locale in h.get_available_locales() %}
+    {% set code = locale.short_name %}
+    {% set name = locale.display_name or locale.english_name %}
+    <a class="dwr-lang__item" href="{{ h.url_for(h.current_url(), locale=code) }}"
+       lang="{{ code }}" hreflang="{{ code }}"
+       {%- if code == current %} aria-current="true"{% endif %}
+       {%- if variant == 'compact' %} title="{{ name }}"{% endif %}>
+      {%- if variant == 'compact' -%}
+        <span aria-hidden="true">{{ code.split('_')[0] | upper }}</span><span class="dwr-sr-only">{{ name }}</span>
+      {%- else -%}
+        {{ name }}
+      {%- endif -%}
+    </a>
+  {% endfor %}
+</nav>

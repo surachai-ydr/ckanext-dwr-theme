@@ -127,8 +127,38 @@ def dwr_theme_footer() -> dict[str, str]:
     }
 
 
+# Thai readers expect years in the Buddhist Era (B.E. = C.E. + 543)
+BUDDHIST_ERA_OFFSET = 543
+_YEAR = re.compile(r"(?<!\d)\d{4}(?!\d)")
+
+
+def _is_thai() -> bool:
+    return (tk.h.lang() or "").split("_")[0] == "th"
+
+
+def to_buddhist_era(text: str) -> str:
+    """Convert the C.E. years in a formatted date to B.E., e.g.
+    "20 พฤศจิกายน ค.ศ. 2026" -> "20 พฤศจิกายน พ.ศ. 2569"."""
+    text = text.replace("ค.ศ.", "พ.ศ.")
+    return _YEAR.sub(lambda match: str(int(match.group()) + BUDDHIST_ERA_OFFSET), text)
+
+
+@tk.chained_helper
+def render_datetime(next_helper: Callable[..., str], *args: Any, **kwargs: Any) -> str:
+    """Core ``render_datetime``, with Buddhist Era years when the language is Thai.
+
+    An explicit ``date_format`` asks for a fixed (often machine) format, so it is left alone.
+    """
+    rendered = next_helper(*args, **kwargs)
+    has_format = len(args) > 1 and args[1] or kwargs.get("date_format")
+    if rendered and not has_format and _is_thai():
+        return to_buddhist_era(rendered)
+    return rendered
+
+
 def dwr_theme_current_year() -> int:
-    return datetime.date.today().year
+    year = datetime.date.today().year
+    return year + BUDDHIST_ERA_OFFSET if _is_thai() else year
 
 
 def dwr_theme_privacy_policy_url() -> str:
@@ -270,4 +300,5 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_initials": dwr_theme_initials,
         "dwr_theme_gdc_enabled": dwr_theme_gdc_enabled,
         "dwr_theme_version": dwr_theme_version,
+        "render_datetime": render_datetime,
     }

@@ -38,7 +38,7 @@ with this extension installed, using `docker-compose.dev.yml`.
         docker compose -f docker-compose.dev.yml up -d
 
 3. Open http://localhost:5000 and log in as `admin` / `admin123456` (sysadmin).
-   The site starts in Thai; switch to English with the language selector in the footer.
+   The site starts in Thai; switch to English with the TH | EN switch in the header (or the language links in the footer).
 
 Day-to-day commands (run in this folder):
 
@@ -294,6 +294,11 @@ The language must also be listed in `ckan.locales_offered` in `ckan.ini`, e.g.
     /usr/lib/ckan/default/bin/pybabel compile -i "$catalog.po" -o "$catalog.mo"
 
     sudo supervisorctl restart 'ckan-uwsgi:*'
+
+### Create new User / SysAdmin
+    /usr/lib/ckan/default/bin/ckan -c /etc/ckan/default/ckan.ini user add dwradmin email=noranand.a@dwr.mail.go.th
+    /usr/lib/ckan/default/bin/ckan -c /etc/ckan/default/ckan.ini sysadmin add dwradmin
+    /usr/lib/ckan/default/bin/ckan -c /etc/ckan/default/ckan.ini sysadmin list
 
 ## License
 

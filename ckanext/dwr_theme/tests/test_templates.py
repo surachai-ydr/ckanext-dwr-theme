@@ -53,6 +53,29 @@ class TestTheme:
         body = app.get("/").body
         assert f"Theme version {helpers.dwr_theme_version()}" in body
 
+    @pytest.mark.ckan_config("ckan.locales_offered", "th en")
+    def test_thai_dates_use_buddhist_era(self, app):
+        factories.Dataset(title="Reservoir levels")
+        year = datetime.date.today().year
+
+        thai = app.get("/th/dataset/").body
+        english = app.get("/en/dataset/").body
+
+        assert re.search(rf"<time [^>]*>[^<]*พ\.ศ\. {year + 543}</time>", thai)
+        assert f"&copy; {year + 543} " in thai
+        assert re.search(rf"<time [^>]*>[^<]*{year}</time>", english)
+        assert f"&copy; {year} " in english
+
+    @pytest.mark.ckan_config("ckan.locales_offered", "th en")
+    def test_language_switch_links(self, app):
+        body = app.get("/en/dataset/").body
+
+        assert 'class="dwr-lang dwr-lang--compact"' in body
+        assert 'class="dwr-lang dwr-lang--list"' in body
+        assert 'href="/th/dataset/"' in body
+        assert body.count('aria-current="true"') >= 2  # current language, header + footer
+        assert 'id="field-lang-select"' not in body
+
     def test_favicon(self, app):
         assert '<link rel="shortcut icon" href="/favicon.ico">' in app.get("/").body
         assert app.get("/favicon.ico").status_code == 200

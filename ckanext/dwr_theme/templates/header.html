@@ -67,6 +67,10 @@
         </div>
       {% endblock %}
 
+      {% block header_language %}
+        {% snippet "dwr_theme/snippets/language_switch.html", variant="compact" %}
+      {% endblock %}
+
       {% block header_account %}
         <div class="dwr-account">
           {% if current_user.is_authenticated %}

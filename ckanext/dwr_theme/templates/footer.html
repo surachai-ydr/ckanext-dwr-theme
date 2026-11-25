@@ -1,77 +1,71 @@
 {# Replaces CKAN's footer.html entirely. #}
 {% import 'dwr_theme/macros/icons.html' as icons %}
+{% set footer = h.dwr_theme_footer() %}
+{% set gdc = h.dwr_theme_gdc_enabled() %}
+{# Agency contact details from thai_gdc's Sysadmin config page. #}
+{% set contacts = [(g.site_org_contact, 'phone'), (g.site_org_email, 'mail'), (g.site_org_address, 'map-pin')] | selectattr(0) | list if gdc else [] %}
 
 <footer class="dwr-footer">
-  <div class="dwr-container">
-    <div class="dwr-footer__grid">
-      {% block footer_about %}
-        {% set footer = h.dwr_theme_footer() %}
-        <div class="dwr-footer__about">
-          <a class="dwr-brand" href="{{ h.url_for('home.index') }}">
-            {% if footer.logo %}
-              <img class="dwr-footer__logo" src="{{ h.url_for_static_or_external(footer.logo) }}" alt="">
-            {% else %}
-              <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
-            {% endif %}
-            <span class="dwr-brand__text"><span class="dwr-brand__title">{{ footer.name }}</span></span>
-          </a>
+  <div class="dwr-container dwr-footer__main">
+    {% block footer_about %}
+      <div class="dwr-footer__about">
+        <a class="dwr-footer__brand" href="{{ h.url_for('home.index') }}" aria-label="{{ footer.name }}">
+          {% if footer.logo %}
+            <img class="dwr-footer__logo" src="{{ h.url_for_static_or_external(footer.logo) }}" alt="">
+          {% else %}
+            <span class="dwr-brand__mark">{{ icons.icon('droplet') }}</span>
+          {% endif %}
+        </a>
+        <div class="dwr-footer__org">
+          <strong>{{ footer.name }}</strong>
           <p>{{ g.site_description or _('An open data portal powered by CKAN.') }}</p>
-          {% block footer_contact %}
-            {# Agency contact details from thai_gdc's Sysadmin config page. #}
-            {% if h.dwr_theme_gdc_enabled() %}
-              <ul class="dwr-footer__contact">
-                {% for value, icon in [(g.site_org_address, 'map-pin'), (g.site_org_contact, 'phone'), (g.site_org_email, 'mail')] if value %}
-                  <li>{{ icons.icon(icon) }}<div>{{ h.render_markdown(value) }}</div></li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          {% endblock %}
         </div>
-      {% endblock %}
+      </div>
+    {% endblock %}
 
+    <div class="dwr-footer__meta">
       {% block footer_links %}
-        <nav aria-label="{{ _('Explore') }}">
-          <h3>{{ _('Explore') }}</h3>
-          <ul>
-            <li><a href="{{ h.url_for('dataset.search') }}">{{ _('Datasets') }}</a></li>
-            <li><a href="{{ h.url_for('organization.index') }}">{{ _('Organizations') }}</a></li>
-            <li><a href="{{ h.url_for('group.index') }}">{{ _('Groups') }}</a></li>
-            <li><a href="{{ h.url_for('home.about') }}">{{ _('About') }}</a></li>
-          </ul>
+        <nav class="dwr-footer__links" aria-label="{{ _('Explore') }}">
+          <a href="{{ h.url_for('dataset.search') }}">{{ _('Datasets') }}</a>
+          <a href="{{ h.url_for('organization.index') }}">{{ _('Organizations') }}</a>
+          <a href="{{ h.url_for('group.index') }}">{{ _('Groups') }}</a>
+          <a href="{{ h.url_for('home.about') }}">{{ _('About') }}</a>
+          <a href="{{ h.dwr_theme_privacy_policy_url() }}">{{ _('Privacy Policy') }}</a>
         </nav>
       {% endblock %}
 
+      {% block footer_contact %}
+        {% if contacts %}
+          <ul class="dwr-footer__contact">
+            {% for value, icon in contacts %}
+              <li>{{ icons.icon(icon) }}<div>{{ h.render_markdown(value) }}</div></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endblock %}
+
       {% block footer_lang %}
-        <div class="dwr-footer__lang">
-          <h3>{{ _('Language') }}</h3>
-          {% snippet "dwr_theme/snippets/language_switch.html", variant="list" %}
-        </div>
+        {% snippet "dwr_theme/snippets/language_switch.html", variant="list" %}
       {% endblock %}
     </div>
-
-    {% block footer_attribution %}
-      <div class="dwr-footer__bottom">
-        <span>
-          &copy; {{ h.dwr_theme_current_year() }} {{ h.dwr_theme_footer().name }}
-          <span aria-hidden="true">&middot;</span>
-          <a href="{{ h.dwr_theme_privacy_policy_url() }}">{{ _('Privacy Policy') }}</a>
-          {% if h.dwr_theme_gdc_enabled() %}
-            {% if g.site_policy_link %}
-              <span class="dwr-footer__policies">{{ h.render_markdown(g.site_policy_link) }}</span>
-            {% endif %}
-            <span aria-hidden="true">&middot;</span>
-            {{ _('Visitors') }} <strong class="dwr-footer__visitors">{{ h.thai_gdc_get_stat_all_view() }}</strong>
-          {% endif %}
-        </span>
-        <span>
-          {{ _('Powered by') }} <a href="https://dwr.go.th" target="_blank" rel="noopener">{{ _('Department of Water Resources') }}</a>
-          {% set version = h.dwr_theme_version() %}
-          {% if version %}
-            <span aria-hidden="true">&middot;</span>
-            <span class="dwr-footer__version">{{ _('Theme version {version}').format(version=version) }}</span>
-          {% endif %}
-        </span>
-      </div>
-    {% endblock %}
   </div>
+
+  {% block footer_attribution %}
+    <div class="dwr-footer__bottom">
+      <div class="dwr-container">
+        <span>&copy; {{ h.dwr_theme_current_year() }} {{ footer.name }}</span>
+        {% if gdc and g.site_policy_link %}
+          <span class="dwr-footer__policies">{{ h.render_markdown(g.site_policy_link) }}</span>
+        {% endif %}
+        {% if gdc %}
+          <span>{{ _('Visitors') }} <strong class="dwr-footer__visitors">{{ h.thai_gdc_get_stat_all_view() }}</strong></span>
+        {% endif %}
+        <span>{{ _('Powered by') }} <a href="https://dwr.go.th" target="_blank" rel="noopener">{{ _('Department of Water Resources') }}</a></span>
+        {% set version = h.dwr_theme_version() %}
+        {% if version %}
+          <span class="dwr-footer__version">{{ _('Theme version {version}').format(version=version) }}</span>
+        {% endif %}
+      </div>
+    </div>
+  {% endblock %}
 </footer>

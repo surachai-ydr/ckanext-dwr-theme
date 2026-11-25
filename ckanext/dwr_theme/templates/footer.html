@@ -57,9 +57,9 @@
         {% if gdc and g.site_policy_link %}
           <span class="dwr-footer__policies">{{ h.render_markdown(g.site_policy_link) }}</span>
         {% endif %}
-        {% if gdc %}
+        <!-- {% if gdc %}
           <span>{{ _('Visitors') }} <strong class="dwr-footer__visitors">{{ h.thai_gdc_get_stat_all_view() }}</strong></span>
-        {% endif %}
+        {% endif %} -->
         <span>{{ _('Powered by') }} <a href="https://dwr.go.th" target="_blank" rel="noopener">{{ _('Department of Water Resources') }}</a></span>
         {% set version = h.dwr_theme_version() %}
         {% if version %}

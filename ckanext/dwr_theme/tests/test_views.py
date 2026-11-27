@@ -112,7 +112,7 @@ class TestUserAdmin:
 
         sysadmin = factories.SysadminWithToken()
         org = factories.Organization()
-        app.post(self.url + "new", headers=self._as(sysadmin), data={
+        app.post(self.url, headers=self._as(sysadmin), data={
             "name": "newuser", "email": "new@example.com", "password": "pass12345678",
             "organization": org["id"], "role": "editor",
         })

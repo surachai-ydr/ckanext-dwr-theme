@@ -182,6 +182,66 @@ ckan.module("dwr-theme-home-modal", function ($) {
   };
 });
 
+/* Opens a <dialog> (data-module-target) as a modal when clicked; a click on
+ * its backdrop closes it. A dialog with data-dwr-open opens on page load,
+ * e.g. a form returned with validation errors. showModal() would focus the
+ * close button, so focus goes to the first field with an error, or the first
+ * field (data-dwr-focus-field), or else the dialog itself.
+ *
+ * Usage: <button type="button" data-module="dwr-theme-dialog" data-module-target="#my-dialog">
+ */
+ckan.module("dwr-theme-dialog", function ($) {
+  "use strict";
+
+  return {
+    options: {
+      target: null,
+    },
+
+    initialize: function () {
+      $.proxyAll(this, /_on/);
+      this.dialog = $(this.options.target)[0];
+      if (!this.dialog || typeof this.dialog.showModal !== "function") {
+        return;
+      }
+      this.el.on("click", this._onClick);
+      // Bind the backdrop handler once, however many buttons open this dialog
+      if (!this.dialog.hasAttribute("data-dwr-bound")) {
+        this.dialog.setAttribute("data-dwr-bound", "");
+        this.dialog.addEventListener("click", this._onBackdropClick);
+        if (this.dialog.hasAttribute("data-dwr-open")) {
+          this._open();
+        }
+      }
+    },
+
+    _open: function () {
+      var dialog = this.dialog;
+      dialog.showModal();
+      var field =
+        dialog.querySelector(".dwr-field--error .form-control") ||
+        (dialog.hasAttribute("data-dwr-focus-field") && dialog.querySelector(".dwr-field .form-control"));
+      if (field) {
+        field.focus();
+      } else {
+        dialog.setAttribute("tabindex", "-1");
+        dialog.focus();
+      }
+    },
+
+    _onClick: function () {
+      this._open();
+    },
+
+    // A click on the dialog element itself (not its content) is on the backdrop.
+    _onBackdropClick: function (event) {
+      if (event.target === event.currentTarget) {
+        event.currentTarget.close();
+      }
+    },
+  };
+});
+
 /* Image slideshow in the homepage dialog: shows one .dwr-slides__slide at a
  * time and moves on every `interval` ms, pausing while hovered or focused.
  * Buttons with data-slide="prev" / "next" / <index> move to a slide.

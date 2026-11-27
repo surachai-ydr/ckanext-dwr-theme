@@ -39,13 +39,16 @@ def _context() -> dict[str, Any]:
     return {"user": tk.current_user.name}
 
 
-def _redirect_back():
-    """Back to the list, keeping its search, filter and page."""
+def _redirect_back(reopen: model.User | None = None):
+    """Back to the list, keeping its search, filter and page; ``reopen``
+    opens that user's Manage dialog again so the sysadmin can carry on."""
     args = {
         key: tk.request.form.get(key)
         for key in ("q", "state", "page")
         if tk.request.form.get(key)
     }
+    if reopen is not None:
+        args["open"] = reopen.id
     return tk.redirect_to("dwr_user_admin.index", **args)
 
 
@@ -95,11 +98,18 @@ def _organizations() -> list[model.Group]:
     )
 
 
-def index():
-    q = tk.request.args.get("q", "").strip()
-    state = tk.request.args.get("state", "")
+def index(create_data: dict[str, Any] | None = None, create_errors: dict[str, Any] | None = None):
+    """The user list; a POST creates a user (same URL, so the Users tab stays
+    highlighted). ``create_data``/``create_errors`` re-open the "Create user"
+    dialog with what was typed when user_create rejected it."""
+    if tk.request.method == "POST" and create_errors is None:
+        return create()
+    # values: the list state comes as query args, or as hidden fields on a POST
+    params = tk.request.values
+    q = params.get("q", "").strip()
+    state = params.get("state", "")
     try:
-        page_number = max(int(tk.request.args.get("page", 1)), 1)
+        page_number = max(int(params.get("page", 1)), 1)
     except ValueError:
         page_number = 1
 
@@ -147,6 +157,9 @@ def index():
             "roles": ROLES,
             "count": count,
             "current_user_id": tk.current_user.id,
+            "create_data": create_data or {},
+            "create_errors": create_errors or {},
+            "open_id": params.get("open"),
         },
     )
 
@@ -159,14 +172,15 @@ def create():
         "email": form.get("email", "").strip(),
         "password": form.get("password", ""),
     }
+    org = form.get("organization")
+    role = form.get("role")
     try:
         user = tk.get_action("user_create")(_context(), data)
     except tk.ValidationError as e:
-        tk.h.flash_error(_error_text(e))
-        return _redirect_back()
+        data.pop("password")
+        return index(create_data={**data, "organization": org, "role": role},
+                     create_errors=e.error_dict)
 
-    org = form.get("organization")
-    role = form.get("role")
     if org and role in ROLES:
         try:
             tk.get_action("organization_member_create")(
@@ -184,14 +198,14 @@ def sysadmin(user_id: str):
     reason = _is_protected(user)
     if reason:
         tk.h.flash_error(reason)
-        return _redirect_back()
+        return _redirect_back(user)
     user.sysadmin = tk.asbool(tk.request.form.get("sysadmin"))
     model.repo.commit()
     if user.sysadmin:
         tk.h.flash_success(tk._("{name} is now a sysadmin.").format(name=user.name))
     else:
         tk.h.flash_success(tk._("{name} is no longer a sysadmin.").format(name=user.name))
-    return _redirect_back()
+    return _redirect_back(user)
 
 
 def delete(user_id: str):
@@ -219,13 +233,13 @@ def reactivate(user_id: str):
 
 
 def membership(user_id: str):
-    """Add, change (role) or remove (empty role) one organization membership."""
+    """Add or change (role) one organization membership, or remove it ("remove")."""
     user = _get_user(user_id)
     org = tk.request.form.get("organization")
-    role = tk.request.form.get("role")
+    role = None if tk.request.form.get("remove") else tk.request.form.get("role")
     if not org:
         tk.h.flash_error(tk._("Choose an organization."))
-        return _redirect_back()
+        return _redirect_back(user)
     try:
         if role in ROLES:
             tk.get_action("organization_member_create")(
@@ -241,7 +255,7 @@ def membership(user_id: str):
             )
     except (tk.ValidationError, tk.ObjectNotFound) as e:
         tk.h.flash_error(_error_text(e))
-    return _redirect_back()
+    return _redirect_back(user)
 
 
 def _error_text(error: Exception) -> str:
@@ -253,8 +267,7 @@ def _error_text(error: Exception) -> str:
     return str(error) or tk._("Not found")
 
 
-user_admin.add_url_rule("/", view_func=index, endpoint="index")
-user_admin.add_url_rule("/new", view_func=create, methods=["POST"])
+user_admin.add_url_rule("/", view_func=index, endpoint="index", methods=["GET", "POST"])
 user_admin.add_url_rule("/<user_id>/sysadmin", view_func=sysadmin, methods=["POST"])
 user_admin.add_url_rule("/<user_id>/delete", view_func=delete, methods=["POST"])
 user_admin.add_url_rule("/<user_id>/reactivate", view_func=reactivate, methods=["POST"])

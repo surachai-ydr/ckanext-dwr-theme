@@ -1,7 +1,7 @@
 # Run a local CKAN site with this theme on top of ckanext-thai_gdc (the
 # production setup), at http://localhost:5001
 #
-# Expects ckanext-thai-gdc to be checked out next to this folder.
+# Expects ckanext-thai_gdc to be checked out next to this folder.
 #
 #   docker compose -f docker-compose.gdc.yml -p dwr-gdc up
 #   docker compose -f docker-compose.gdc.yml -p dwr-gdc down
@@ -16,7 +16,7 @@ services:
       - "5001:5000"
     volumes:
       - .:/srv/app/src_extensions/ckanext-dwr-theme
-      - ../ckanext-thai-gdc:/srv/app/src_extensions/ckanext-thai-gdc
+      - ../ckanext-thai_gdc:/srv/app/src_extensions/ckanext-thai-gdc
     environment:
       CKAN_SITE_URL: http://localhost:5001
       CKAN_SITE_ID: default
@@ -47,6 +47,9 @@ services:
           "scheming.dataset_fallback = false" \
           "ckan.site_url = http://localhost:5001" \
           "debug = true" \
+          "ckan.uploads_enabled = true" \
+          "ckan.upload.admin.types = image" \
+          "ckan.upload.admin.mimetypes = image/png image/gif image/jpeg image/webp" \
           "ckan.locale_default = th" \
           "ckan.locales_offered = th en" \
           "beaker.session.secret = dev-secret" \

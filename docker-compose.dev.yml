@@ -38,6 +38,9 @@ services:
           "ckan.plugins = activity image_view text_view datatables_view dwr-theme" \
           "ckan.site_url = http://localhost:5000" \
           "debug = true" \
+          "ckan.uploads_enabled = true" \
+          "ckan.upload.admin.types = image" \
+          "ckan.upload.admin.mimetypes = image/png image/gif image/jpeg image/webp" \
           "ckan.locale_default = th" \
           "ckan.locales_offered = th en" \
           "ckanext.dwr_theme.home_modal = true" \

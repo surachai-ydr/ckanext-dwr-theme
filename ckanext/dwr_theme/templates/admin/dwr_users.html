@@ -1,0 +1,262 @@
+{% extends "admin/base.html" %}
+
+{#
+  Sysadmin user management (Sysadmin settings -> Users), see user_admin.py.
+  "Create user" and each user's "Manage" open a <dialog> (dwr-theme-dialog
+  module). Every action is its own small POST form; the hidden q/state/page
+  fields bring the sysadmin back to the same list afterwards.
+#}
+
+{% block subtitle %}{{ _('Users') }} - {{ super() }}{% endblock %}
+
+{% macro keep_list() %}
+  {{ h.csrf_input() }}
+  <input type="hidden" name="q" value="{{ q }}">
+  <input type="hidden" name="state" value="{{ state }}">
+  <input type="hidden" name="page" value="{{ page.page }}">
+{% endmacro %}
+
+{% macro role_options(selected=None) %}
+  {% for role in roles %}
+    <option value="{{ role }}"{% if role == selected %} selected{% endif %}>{{ _(role | capitalize) }}</option>
+  {% endfor %}
+{% endmacro %}
+
+{# A labelled input with its hint and validation error. #}
+{% macro field(name, label, id, type='text', value='', required=False, hint=None, attrs='') %}
+  {% set error = create_errors.get(name) %}
+  <div class="dwr-field{% if error %} dwr-field--error{% endif %}">
+    <label class="form-label" for="{{ id }}">{% if required %}<span class="dwr-field__required" title="{{ _('Required') }}">*</span> {% endif %}{{ label }}</label>
+    <input class="form-control" id="{{ id }}" type="{{ type }}" name="{{ name }}" value="{{ value }}"{% if required %} required{% endif %}{% if hint or error %} aria-describedby="{{ id }}-hint"{% endif %} {{ attrs | safe }}>
+    {% if error %}
+      <p class="dwr-field__error" id="{{ id }}-hint">{{ error | join(' ') if error is not string else error }}</p>
+    {% elif hint %}
+      <p class="dwr-field__hint" id="{{ id }}-hint">{{ hint }}</p>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro dialog_head(id, title, subtitle=None) %}
+  <header class="dwr-dialog__head">
+    <div>
+      <h2 class="dwr-dialog__title" id="{{ id }}-title">{{ title }}</h2>
+      {% if subtitle %}<p class="dwr-dialog__subtitle">{{ subtitle }}</p>{% endif %}
+    </div>
+    <form method="dialog"><button class="dwr-dialog__close" type="submit" aria-label="{{ _('Close') }}">&times;</button></form>
+  </header>
+{% endmacro %}
+
+{% block primary_content_inner %}
+<div class="dwr-users">
+  <div class="dwr-users__toolbar">
+    <form class="dwr-users__search" method="get" action="{{ h.url_for('dwr_user_admin.index') }}">
+      <input class="form-control" type="search" name="q" value="{{ q }}" placeholder="{{ _('Search name, full name or email') }}" aria-label="{{ _('Search users') }}">
+      <select class="form-select form-control" name="state" aria-label="{{ _('State') }}">
+        <option value="">{{ _('All states') }}</option>
+        {% for s in states %}
+          <option value="{{ s }}"{% if s == state %} selected{% endif %}>{{ _(s | capitalize) }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-default btn-secondary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> {{ _('Search') }}</button>
+    </form>
+    <button class="btn btn-primary" type="button" data-module="dwr-theme-dialog" data-module-target="#dwr-create-user">
+      <i class="fa fa-user-plus" aria-hidden="true"></i> {{ _('Create user') }}
+    </button>
+  </div>
+
+  <p class="dwr-users__count">{{ ungettext('{n} user', '{n} users', count).format(n=count) }}</p>
+
+  <div class="table-responsive">
+  <table class="table dwr-users__table">
+    <thead>
+      <tr>
+        <th scope="col">{{ _('User') }}</th>
+        <th scope="col">{{ _('Organizations') }}</th>
+        <th scope="col">{{ _('Created') }}</th>
+        <th scope="col"><span class="visually-hidden sr-only">{{ _('Actions') }}</span></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      {% set orgs = memberships.get(user.id, []) %}
+      <tr class="dwr-users__row dwr-users__row--{{ user.state }}">
+        <td>
+          <a href="{{ h.url_for('user.read', id=user.name) }}"><strong>{{ user.fullname or user.name }}</strong></a>
+          {% if user.sysadmin %}<span class="dwr-users__badge dwr-users__badge--sysadmin">{{ _('Sysadmin') }}</span>{% endif %}
+          {% if user.state != 'active' %}<span class="dwr-users__badge dwr-users__badge--{{ user.state }}">{{ _(user.state | capitalize) }}</span>{% endif %}
+          <div class="dwr-users__meta">{{ user.name }}{% if user.email %} · {{ user.email }}{% endif %}</div>
+        </td>
+        <td>
+          {% for org in orgs %}
+            <div class="dwr-users__org">{{ org.title }} <span class="dwr-users__role">{{ _(org.role | capitalize) }}</span></div>
+          {% else %}
+            <span class="dwr-users__meta">—</span>
+          {% endfor %}
+        </td>
+        <td class="dwr-users__meta">{{ h.render_datetime(user.created) }}</td>
+        <td class="dwr-users__actions">
+          <button class="btn btn-default btn-secondary btn-sm" type="button" data-module="dwr-theme-dialog" data-module-target="#dwr-manage-{{ user.id }}">
+            <i class="fa fa-cog" aria-hidden="true"></i> {{ _('Manage') }}
+          </button>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">{{ _('No users found.') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+  {{ page.pager() }}
+
+  {# ---- Create user ---- #}
+  <dialog class="dwr-dialog" id="dwr-create-user" aria-labelledby="dwr-create-user-title" data-dwr-focus-field{% if create_errors %} data-dwr-open{% endif %}>
+    {{ dialog_head('dwr-create-user', _('Create user')) }}
+    <form method="post" action="{{ h.url_for('dwr_user_admin.index') }}" autocomplete="off">
+      {{ keep_list() }}
+      <div class="dwr-dialog__body">
+        {% if create_errors %}
+          <div class="alert alert-danger" role="alert">{{ _('Please fix the highlighted fields.') }}</div>
+        {% endif %}
+        <section class="dwr-dialog__section">
+          <h3>{{ _('Account') }}</h3>
+          <div class="dwr-dialog__grid">
+            {{ field('name', _('Username'), 'dwr-new-name', value=create_data.name, required=True,
+                     hint=_('2–100 characters: lowercase letters, numbers, - and _. Cannot be changed later.'),
+                     attrs='pattern="[a-z0-9_\-]{2,100}" autocapitalize="none" spellcheck="false"') }}
+            {{ field('fullname', _('Full name'), 'dwr-new-fullname', value=create_data.fullname) }}
+            {{ field('email', _('Email'), 'dwr-new-email', type='email', value=create_data.email, required=True) }}
+            {{ field('password', _('Password'), 'dwr-new-password', type='password', required=True,
+                     hint=_('At least 8 characters.'), attrs='minlength="8" autocomplete="new-password"') }}
+          </div>
+        </section>
+        <section class="dwr-dialog__section">
+          <h3>{{ _('Organization') }} <span class="dwr-dialog__optional">{{ _('optional') }}</span></h3>
+          <div class="dwr-dialog__grid">
+            <div class="dwr-field">
+              <label class="form-label" for="dwr-new-org">{{ _('Organization') }}</label>
+              <select class="form-select form-control" id="dwr-new-org" name="organization">
+                <option value="">{{ _('None') }}</option>
+                {% for org in organizations %}<option value="{{ org.id }}"{% if org.id == create_data.organization %} selected{% endif %}>{{ org.title or org.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="dwr-field">
+              <label class="form-label" for="dwr-new-role">{{ _('Role') }}</label>
+              <select class="form-select form-control" id="dwr-new-role" name="role">{{ role_options(create_data.role or 'member') }}</select>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="dwr-dialog__foot">
+        <button class="btn btn-default btn-secondary" type="submit" formmethod="dialog" formnovalidate>{{ _('Cancel') }}</button>
+        <button class="btn btn-primary" type="submit">{{ _('Create user') }}</button>
+      </footer>
+    </form>
+  </dialog>
+
+  {# ---- Manage, one per user ---- #}
+  {% for user in users %}
+    {% set orgs = memberships.get(user.id, []) %}
+    {% set is_self = user.id == current_user_id %}
+    {% set member_of = orgs | map(attribute='id') | list %}
+    <dialog class="dwr-dialog" id="dwr-manage-{{ user.id }}" aria-labelledby="dwr-manage-{{ user.id }}-title"{% if user.id == open_id %} data-dwr-open{% endif %}>
+      {{ dialog_head('dwr-manage-' ~ user.id, user.fullname or user.name, user.name ~ (' · ' ~ user.email if user.email else '')) }}
+      <div class="dwr-dialog__body">
+
+        <section class="dwr-dialog__section">
+          <h3>{{ _('Account') }}</h3>
+          <div class="dwr-setting">
+            <div>
+              <strong>{{ _('Profile and password') }}</strong>
+              <p>{{ _('Name, email, description and password, on the user\'s edit page.') }}</p>
+            </div>
+            <a class="btn btn-default btn-secondary btn-sm" href="{{ h.url_for('user.edit', id=user.name) }}"><i class="fa fa-pencil" aria-hidden="true"></i> {{ _('Edit') }}</a>
+          </div>
+          <div class="dwr-setting">
+            <div>
+              <strong>{{ _('Sysadmin') }}</strong>
+              {% if user.sysadmin %}<span class="dwr-users__badge dwr-users__badge--sysadmin">{{ _('On') }}</span>{% endif %}
+              <p>{{ _('Full access to every organization, dataset and site setting.') }}</p>
+            </div>
+            {% if is_self %}
+              <span class="dwr-users__meta">{{ _('Your own account') }}</span>
+            {% elif user.state == 'active' %}
+              <form method="post" action="{{ h.url_for('dwr_user_admin.sysadmin', user_id=user.id) }}">
+                {{ keep_list() }}
+                <input type="hidden" name="sysadmin" value="{{ 'false' if user.sysadmin else 'true' }}">
+                <button class="btn btn-default btn-secondary btn-sm" type="submit">{{ _('Remove sysadmin') if user.sysadmin else _('Make sysadmin') }}</button>
+              </form>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="dwr-dialog__section">
+          <h3>{{ _('Organizations') }}</h3>
+          {% if orgs %}
+            <ul class="dwr-memberships">
+              {% for org in orgs %}
+                <li>
+                  <form class="dwr-memberships__row" method="post" action="{{ h.url_for('dwr_user_admin.membership', user_id=user.id) }}">
+                    {{ keep_list() }}
+                    <input type="hidden" name="organization" value="{{ org.id }}">
+                    <span class="dwr-memberships__org">{{ org.title }}</span>
+                    <select class="form-select form-control" name="role" aria-label="{{ _('Role in {org}').format(org=org.title) }}">{{ role_options(org.role) }}</select>
+                    <button class="btn btn-default btn-secondary btn-sm" type="submit">{{ _('Save') }}</button>
+                    <button class="btn btn-link btn-sm dwr-memberships__remove" type="submit" name="remove" value="1">{{ _('Remove') }}</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="dwr-users__meta">{{ _('Not a member of any organization.') }}</p>
+          {% endif %}
+          {% set addable = organizations | rejectattr('id', 'in', member_of) | list %}
+          {% if addable %}
+            <form class="dwr-memberships__row dwr-memberships__add" method="post" action="{{ h.url_for('dwr_user_admin.membership', user_id=user.id) }}">
+              {{ keep_list() }}
+              <select class="form-select form-control" name="organization" aria-label="{{ _('Organization') }}" required>
+                <option value="">{{ _('Add to organization…') }}</option>
+                {% for org in addable %}<option value="{{ org.id }}">{{ org.title or org.name }}</option>{% endfor %}
+              </select>
+              <select class="form-select form-control" name="role" aria-label="{{ _('Role') }}">{{ role_options('member') }}</select>
+              <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-plus" aria-hidden="true"></i> {{ _('Add') }}</button>
+            </form>
+          {% endif %}
+          <p class="dwr-field__hint">{{ _('Admins manage the organization and its members, editors add and edit its datasets, members can see its private datasets.') }}</p>
+        </section>
+
+        {% if not is_self %}
+          <section class="dwr-dialog__section dwr-dialog__section--danger">
+            {% if user.state == 'active' %}
+              <h3>{{ _('Delete user') }}</h3>
+              <p>{{ _('The account can no longer log in and is removed from all organizations. Datasets it created are kept. A deleted user can be reactivated.') }}</p>
+              <form class="dwr-danger" method="post" action="{{ h.url_for('dwr_user_admin.delete', user_id=user.id) }}">
+                {{ keep_list() }}
+                <label class="dwr-danger__confirm"><input type="checkbox" required> {{ _('Yes, delete {name}').format(name=user.name) }}</label>
+                <button class="btn btn-danger btn-sm" type="submit"><i class="fa fa-trash" aria-hidden="true"></i> {{ _('Delete user') }}</button>
+              </form>
+            {% else %}
+              <h3>{{ _('Reactivate user') }}</h3>
+              <p>{{ _('Lets the account log in again. Add it back to its organizations afterwards.') }}</p>
+              <form method="post" action="{{ h.url_for('dwr_user_admin.reactivate', user_id=user.id) }}">
+                {{ keep_list() }}
+                <button class="btn btn-primary btn-sm" type="submit">{{ _('Reactivate') }}</button>
+              </form>
+            {% endif %}
+          </section>
+        {% endif %}
+      </div>
+    </dialog>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('Users') }}</h2>
+  <div class="module-content">
+    <p>{{ _('Manage every account in one place: search, create, delete or reactivate users, make them sysadmins and set their role in each organization.') }}</p>
+    <p>{{ _('You cannot delete or demote your own account.') }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -142,3 +142,25 @@ def test_version_matches_installed_package():
 def test_to_buddhist_era(text, expected):
     assert helpers.to_buddhist_era(text) == expected
 
+
+
+@pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
+@pytest.mark.usefixtures("with_plugins", "with_request_context")
+class TestAdminNav:
+    def _nav(self, ckan_config, monkeypatch):
+        monkeypatch.setitem(ckan_config, "ckan.admin_tabs", {
+            "admin.trash": {"label": "Trash", "icon": "trash"},
+            "admin.config": {"label": "Config", "icon": None},
+        })
+        return helpers.build_extra_admin_nav()
+
+    def test_shows_tabs(self, ckan_config, monkeypatch):
+        nav = self._nav(ckan_config, monkeypatch)
+        assert "/ckan-admin/trash" in nav
+        assert "/ckan-admin/config" in nav
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.hidden_admin_tabs", "admin.trash")
+    def test_hides_listed_tabs(self, ckan_config, monkeypatch):
+        nav = self._nav(ckan_config, monkeypatch)
+        assert "/ckan-admin/trash" not in nav
+        assert "/ckan-admin/config" in nav

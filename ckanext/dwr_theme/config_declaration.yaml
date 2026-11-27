@@ -92,6 +92,18 @@ groups:
           on /ckan-admin/config (stored under /uploads/admin/), or any image URL.
         example: /images/dwr-logo-white.png
 
+  - annotation: ckanext-dwr-theme sysadmin settings
+    options:
+      - key: ckanext.dwr_theme.hidden_admin_tabs
+        type: list
+        default: thai_gdc.edit_banner
+        description: |
+          Sysadmin settings tabs to hide, by endpoint (space separated). The
+          default hides thai_gdc's banner page (/ckan-admin/banner-edit): this
+          theme's homepage does not show its promoted banner or search
+          background. Hidden pages still open by URL. Set it empty to show all.
+        example: thai_gdc.edit_banner thai_gdc.import_dataset
+
   - annotation: ckanext-dwr-theme privacy policy
     options:
       - key: ckanext.dwr_theme.privacy_policy_url

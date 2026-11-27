@@ -79,3 +79,98 @@ class TestHomeCards:
 
     def test_invalid_offset(self, app):
         app.get("/dwr-theme/home/group?offset=abc", status=400)
+
+
+@pytest.mark.ckan_config("ckan.plugins", "dwr-theme")
+@pytest.mark.ckan_config("WTF_CSRF_ENABLED", False)
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+class TestUserAdmin:
+    url = "/ckan-admin/users/"
+
+    def _as(self, user):
+        return {"Authorization": user["token"]}
+
+    def test_needs_sysadmin(self, app):
+        from ckan.tests import factories
+
+        user = factories.UserWithToken()
+        assert app.get(self.url, headers=self._as(user), status=403)
+        assert app.get(self.url, status=403)
+
+    def test_lists_users(self, app):
+        from ckan.tests import factories
+
+        sysadmin = factories.SysadminWithToken()
+        user = factories.User(fullname="Somchai Test")
+        resp = app.get(self.url, headers=self._as(sysadmin))
+        assert "Somchai Test" in resp.body
+        assert user["email"] in resp.body
+
+    def test_create_with_organization_role(self, app):
+        from ckan import model
+        from ckan.tests import factories
+
+        sysadmin = factories.SysadminWithToken()
+        org = factories.Organization()
+        app.post(self.url, headers=self._as(sysadmin), data={
+            "name": "newuser", "email": "new@example.com", "password": "pass12345678",
+            "organization": org["id"], "role": "editor",
+        })
+        from ckan.tests.helpers import call_action
+
+        assert model.User.get("newuser") is not None
+        orgs = call_action("organization_list_for_user", id="newuser", permission="manage_group")
+        assert [o["id"] for o in orgs] == []  # editor, not admin
+        orgs = call_action("organization_list_for_user", id="newuser", permission="create_dataset")
+        assert [o["id"] for o in orgs] == [org["id"]]
+
+    def test_toggle_sysadmin(self, app):
+        from ckan import model
+        from ckan.tests import factories
+
+        sysadmin = factories.SysadminWithToken()
+        user = factories.User()
+        app.post(f"{self.url}{user['id']}/sysadmin", headers=self._as(sysadmin), data={"sysadmin": "true"})
+        assert model.User.get(user["id"]).sysadmin
+        app.post(f"{self.url}{user['id']}/sysadmin", headers=self._as(sysadmin), data={"sysadmin": "false"})
+        assert not model.User.get(user["id"]).sysadmin
+
+    def test_cannot_demote_or_delete_self(self, app):
+        from ckan import model
+        from ckan.tests import factories
+
+        sysadmin = factories.SysadminWithToken()
+        app.post(f"{self.url}{sysadmin['id']}/sysadmin", headers=self._as(sysadmin), data={"sysadmin": "false"})
+        app.post(f"{self.url}{sysadmin['id']}/delete", headers=self._as(sysadmin))
+        user = model.User.get(sysadmin["id"])
+        assert user.sysadmin and user.state == "active"
+
+    def test_delete_and_reactivate(self, app):
+        from ckan import model
+        from ckan.tests import factories
+
+        sysadmin = factories.SysadminWithToken()
+        user = factories.User()
+        app.post(f"{self.url}{user['id']}/delete", headers=self._as(sysadmin))
+        assert model.User.get(user["id"]).state == "deleted"
+        app.post(f"{self.url}{user['id']}/reactivate", headers=self._as(sysadmin))
+        assert model.User.get(user["id"]).state == "active"
+
+    def test_change_and_remove_role(self, app):
+        from ckan.tests import factories
+        from ckan.tests.helpers import call_action
+
+        sysadmin = factories.SysadminWithToken()
+        user = factories.User()
+        org = factories.Organization()
+        post = lambda role: app.post(f"{self.url}{user['id']}/membership", headers=self._as(sysadmin),
+                                     data={"organization": org["id"], "role": role})
+
+        def roles():
+            members = call_action("member_list", id=org["id"], object_type="user")
+            return [role.lower() for member_id, _type, role in members if member_id == user["id"]]
+
+        post("admin")
+        assert roles() == ["admin"]
+        post("")
+        assert roles() == []

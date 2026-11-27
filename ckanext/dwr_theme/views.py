@@ -5,6 +5,7 @@ from flask import Blueprint
 import ckan.plugins.toolkit as tk
 
 from ckanext.dwr_theme.helpers import HOME_GROUP_KINDS, dwr_theme_home_groups
+from ckanext.dwr_theme.user_admin import user_admin
 
 dwr_theme = Blueprint("dwr_theme", __name__)
 
@@ -53,4 +54,4 @@ dwr_theme.add_url_rule("/dwr-theme/home/<kind>", view_func=home_cards)
 
 
 def get_blueprints():
-    return [dwr_theme]
+    return [dwr_theme, user_admin]

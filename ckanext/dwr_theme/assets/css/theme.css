@@ -978,3 +978,96 @@ fieldset.checkboxes label { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 575.98px) {
   .stages { flex-direction: column; }
 }
+
+
+/* --------------------------------------------------------------------------
+   Sysadmin settings -> Users (admin/dwr_users.html)
+   -------------------------------------------------------------------------- */
+
+.dwr-users__toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+.dwr-users__search { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 420px; margin: 0; }
+.dwr-users__search input[type="search"] { flex: 1 1 220px; }
+.dwr-users__search select { flex: 0 0 auto; width: auto; }
+.dwr-users__count { color: var(--dwr-muted); }
+.dwr-users__table td { vertical-align: top; }
+.dwr-users__row--deleted { opacity: .65; }
+.dwr-users__meta { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+.dwr-users__badge {
+  display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; vertical-align: middle; background: #e2e8f0; color: #334155;
+}
+.dwr-users__badge--sysadmin { background: var(--dwr-primary-soft); color: var(--dwr-primary); }
+.dwr-users__badge--deleted { background: #fee2e2; color: #991b1b; }
+.dwr-users__badge--pending { background: #fef3c7; color: #92400e; }
+.dwr-users__org { white-space: nowrap; }
+.dwr-users__role { color: var(--dwr-muted); font-size: 12px; }
+.dwr-users__actions { text-align: right; width: 1%; white-space: nowrap; }
+
+/* Admin dialogs (Create user, Manage) */
+.dwr-dialog {
+  width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+  padding: 0; border: 0; border-radius: 12px;
+  color: var(--dwr-text); background: var(--dwr-surface); box-shadow: var(--dwr-shadow-lg);
+}
+.dwr-dialog::backdrop { background: rgba(15, 23, 42, 0.5); }
+.dwr-dialog:focus { outline: none; }
+.dwr-dialog[open] { display: flex; flex-direction: column; animation: dwr-modal-in .2s ease-out; }
+.dwr-dialog > form { display: flex; flex-direction: column; min-height: 0; margin: 0; }
+/* CKAN adds ":" after every label; the dialogs lay labels out above fields */
+.dwr-dialog label::after { content: none; }
+.dwr-dialog__head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--dwr-border);
+}
+.dwr-dialog__head form { margin: 0; }
+.dwr-dialog__title { margin: 0; color: var(--dwr-ink); font-size: calc(20px * var(--dwr-font-scale)); font-weight: 700; }
+.dwr-dialog__subtitle { margin: 2px 0 0; color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); word-break: break-all; }
+.dwr-dialog__close {
+  display: grid; place-items: center; width: 36px; height: 36px; padding: 0 0 2px; flex-shrink: 0;
+  color: var(--dwr-muted); background: transparent; border: 0; border-radius: 999px; font-size: 26px; line-height: 1; cursor: pointer;
+}
+.dwr-dialog__close:hover { color: var(--dwr-ink); background: #f1f5f9; }
+.dwr-dialog__body { padding: 4px 24px 12px; overflow: auto; }
+.dwr-dialog__section { padding: 16px 0; }
+.dwr-dialog__section + .dwr-dialog__section { border-top: 1px solid var(--dwr-border); }
+.dwr-dialog__section h3 { margin: 0 0 12px; color: var(--dwr-ink); font-size: calc(15px * var(--dwr-font-scale)); font-weight: 700; }
+.dwr-dialog__section p { margin: 0; }
+.dwr-dialog__body > .alert { margin: 16px 0 0; }
+.dwr-dialog__optional { margin-left: 4px; color: var(--dwr-muted); font-size: 12px; font-weight: 400; }
+.dwr-dialog__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
+.dwr-dialog__foot {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 14px 24px; border-top: 1px solid var(--dwr-border); background: #f8fafc; border-radius: 0 0 12px 12px;
+}
+@media (max-width: 560px) {
+  .dwr-dialog__grid { grid-template-columns: 1fr; }
+}
+
+.dwr-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dwr-field .form-label { margin: 0; font-weight: 600; }
+.dwr-field__required { color: #dc2626; }
+.dwr-field__hint, .dwr-field__error { margin: 0; font-size: calc(12px * var(--dwr-font-scale)); line-height: 1.4; }
+.dwr-field__hint { color: var(--dwr-muted); }
+.dwr-field__error { color: #b91c1c; }
+.dwr-field--error .form-control { border-color: #dc2626; }
+
+/* Manage dialog: setting rows, organization memberships, danger zone */
+.dwr-setting { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 0; }
+.dwr-setting form { margin: 0; }
+.dwr-setting > :last-child { flex-shrink: 0; }
+.dwr-setting p { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+.dwr-memberships { margin: 0 0 12px; padding: 0; list-style: none; }
+.dwr-memberships li + li { border-top: 1px dashed var(--dwr-border); }
+.dwr-memberships__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 8px 0; }
+.dwr-memberships__row select { width: auto; flex: 0 0 auto; }
+.dwr-memberships__org { flex: 1 1 160px; font-weight: 600; }
+.dwr-memberships__remove { color: #b91c1c; }
+.dwr-memberships__add { margin-bottom: 8px; padding: 10px; background: #f8fafc; border-radius: 8px; }
+.dwr-memberships__add select[name="organization"] { flex: 1 1 200px; width: auto; }
+.dwr-dialog__section--danger h3 { color: #b91c1c; }
+.dwr-dialog__section--danger p { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); margin-bottom: 10px; }
+.dwr-danger {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0;
+  padding: 10px 12px; border: 1px solid #fecaca; border-radius: 8px; background: #fef2f2;
+}
+.dwr-danger__confirm { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-weight: 400; }

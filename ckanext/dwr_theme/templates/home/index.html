@@ -166,12 +166,20 @@
       {% set modal = h.dwr_theme_home_modal() %}
       {% if modal %}
         {# Opened by the dwr-theme-home-modal JS module; without JS it stays hidden. #}
-        <dialog class="dwr-modal" aria-labelledby="dwr-modal-title" data-module="dwr-theme-home-modal" data-module-key="{{ modal.key }}">
+        {# thai_gdc's popup has no title or text (no_text); image_only shows nothing but the image(s). #}
+        {% if modal.image_only %}
+        <dialog class="dwr-modal dwr-modal--image-only" aria-label="{{ modal.link_text or _('Announcement') }}" data-module="dwr-theme-home-modal" data-module-key="{{ modal.key }}">
+          <form method="dialog" class="dwr-modal__inner">
+            <button class="dwr-modal__close" type="submit"><span aria-hidden="true">&times;</span> {{ _('Close') }}</button>
+            {% snippet 'dwr_theme/snippets/modal_images.html', images=modal.images, link_url=modal.link_url, alt=modal.link_text %}
+          </form>
+        </dialog>
+        {% else %}
+        <dialog class="dwr-modal" {% if modal.no_text %}aria-label="{{ _('Announcement') }}"{% else %}aria-labelledby="dwr-modal-title"{% endif %} data-module="dwr-theme-home-modal" data-module-key="{{ modal.key }}">
           <form method="dialog" class="dwr-modal__inner">
             <button class="dwr-modal__close" type="submit" aria-label="{{ _('Close') }}">&times;</button>
-            {% if modal.image %}
-              <img class="dwr-modal__image" src="{{ h.url_for_static_or_external(modal.image) }}" alt="">
-            {% endif %}
+            {% snippet 'dwr_theme/snippets/modal_images.html', images=modal.images %}
+            {% if not modal.no_text %}
             <div class="dwr-modal__body">
               <h2 id="dwr-modal-title">{{ modal.title or _('Welcome to the Data Catalog System') }}</h2>
               <div class="dwr-modal__text">
@@ -182,6 +190,7 @@
                 {% endif %}
               </div>
             </div>
+            {% endif %}
             <div class="dwr-modal__footer">
               <label class="dwr-modal__dismiss">
                 <input type="checkbox" name="dismiss"> {{ _("Don't show this again") }}
@@ -195,6 +204,7 @@
             </div>
           </form>
         </dialog>
+        {% endif %}
       {% endif %}
     {% endblock %}
 

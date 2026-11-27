@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 import ckan.lib.uploader as uploader
+import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 from ckan.types import Context, DataDict
+from flask import has_request_context
 
 from ckanext.dwr_theme.logic import schema
 
@@ -53,19 +55,79 @@ def config_option_update(
             data_dict[option] = ""
         elif getattr(file, "filename", None):
             tk.check_access("config_option_update", context, data_dict)
-            upload = uploader.get_uploader("admin")
-            # Saves to <ckan.storage_path>/storage/uploads/admin/; errors are
-            # keyed by upload_field (e.g. a file that is not an image)
-            upload.update_data_dict({upload_field: file}, option, upload_field, clear_field)
-            upload.upload(uploader.get_max_image_size())
-            if upload.filename:
-                data_dict[option] = tk.h.url_for_static(f"uploads/admin/{upload.filename}")
+            url = _save_image(file, upload_field)
+            if url:
+                data_dict[option] = url
 
     return next_action(context, data_dict)
 
 
+def _save_image(file: Any, upload_field: str) -> str:
+    """Save an uploaded image like core does for the site logo; returns its URL or ''.
+
+    The file goes to <ckan.storage_path>/storage/uploads/admin/ (the name gets
+    a timestamp prefix, so uploads never overwrite each other). Errors such as
+    a file that is not an image are raised keyed by ``upload_field``.
+    """
+    upload = uploader.get_uploader("admin")
+    upload.update_data_dict({upload_field: file}, "url", upload_field, "clear")
+    upload.upload(uploader.get_max_image_size())
+    return tk.h.url_for_static(f"uploads/admin/{upload.filename}") if upload.filename else ""
+
+
+# Fields this theme adds to thai_gdc's popup form (templates/admin/popup.html)
+IMAGE_ONLY_FIELD = "DWR_IMAGE_ONLY"
+IMAGES_FIELD = "DWR_IMAGES"
+IMAGES_UPLOAD_FIELD = "DWR_IMAGES_UPLOAD"
+
+
+@tk.chained_action
+def popup_update_conf_group(
+    next_action: Any, context: Context, data_dict: DataDict
+) -> Any:
+    """Also save this theme's fields from thai_gdc's popup page.
+
+    thai_gdc's view only passes its own EVENT_* fields on, so the "image only"
+    choice and the extra slideshow images are read from the submitted form
+    and stored as CKAN config options. Uploaded images are appended to the
+    listed ones.
+
+    EVENT_TEXT (the link's label) is optional here, but thai_gdc's schema
+    requires it, so an empty one is stored as a space; readers strip it.
+    """
+    fields = data_dict.get("fields")
+    if isinstance(fields, dict) and not (fields.get("EVENT_TEXT") or "").strip():
+        fields["EVENT_TEXT"] = " "
+    result = next_action(context, data_dict)
+    if data_dict.get("conf_group") != "EVENT" or not has_request_context():
+        return result
+    form, files = tk.request.form, tk.request.files
+    if IMAGE_ONLY_FIELD not in form:
+        # Not submitted from this theme's version of the form
+        return result
+
+    images = form.get(IMAGES_FIELD, "").split()
+    for file in files.getlist(IMAGES_UPLOAD_FIELD):
+        if getattr(file, "filename", None):
+            url = _save_image(file, IMAGES_UPLOAD_FIELD)
+            if url:
+                images.append(url)
+    tk.get_action("config_option_update")(
+        {"user": context.get("user")},
+        {
+            "ckanext.dwr_theme.home_modal_image_only": "true" if tk.asbool(form[IMAGE_ONLY_FIELD]) else "false",
+            "ckanext.dwr_theme.home_modal_images": "\n".join(images),
+        },
+    )
+    return result
+
+
 def get_actions():
-    return {
+    actions = {
         "dwr_theme_hello": dwr_theme_hello,
         "config_option_update": config_option_update,
     }
+    # Chaining an action that does not exist fails, so only with thai_gdc
+    if plugins.plugin_loaded("thai_gdc"):
+        actions["popup_update_conf_group"] = popup_update_conf_group
+    return actions

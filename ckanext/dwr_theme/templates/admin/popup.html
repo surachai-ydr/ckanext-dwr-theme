@@ -1,0 +1,85 @@
+{% ckan_extends %}
+
+{#
+  Adds this theme's "Show image only" choice and slideshow images to
+  thai_gdc's popup form (Sysadmin settings -> ป็อปอัพ). The form has no inner
+  blocks, so it is copied from thai_gdc's admin/popup.html; the extra fields
+  are saved by the chained popup_update_conf_group action.
+#}
+{% block primary_content_inner %}
+<form method='post' action="" id="admin-config-form" enctype="multipart/form-data">
+    {{ h.csrf_input() }}
+    <label class="control-label">{{_('Event image')}}</label>
+    {% set is_upload = not data.EVENT_IMAGE_IS_URL and data.EVENT_IMAGE | length > 0 %}
+    {% set is_url = data.EVENT_IMAGE_IS_URL %}
+
+    {{ form.image_upload(data,
+    errors,
+    is_upload_enabled=h.uploads_enabled(),
+    is_url=is_url, is_upload=is_upload,
+    upload_label = '', url_label='',
+    field_url='EVENT_IMAGE',
+    field_upload='EVENT_IMAGE_UPLOAD',
+    field_clear='EVENT_IMAGE_CLEAR' )}}
+
+    {{ form.input('EVENT_TEXT',
+    label=_('External TEXT URL'),
+    id='field-event-text',
+    placeholder=_('more information'),
+    value=data.EVENT_TEXT | trim,
+    error=errors.EVENT_TEXT,
+    classes=['control-medium']) }}
+
+    {{ form.input('EVENT_URL',
+    label=_('External URL'),
+    id='field-event-url',
+    placeholder=_('https://gdcatalog.go.th'),
+    value=data.EVENT_URL,
+    error=errors.EVENT_URL,
+    classes=['control-medium']) }}
+
+    {{ form.select('EVENT_PUBLIC',
+    label=_('Show Home Page'),
+    id='field-event-public',
+    options=[{'value':'True', 'text': _('Show')},{'value': 'False', 'text': _('Hide')}],
+    selected=data.EVENT_PUBLIC,
+    error=errors.EVENT_PUBLIC) }}
+
+    {# A select, not a checkbox: an unticked box is not submitted, so it could never be turned off. #}
+    {{ form.select('DWR_IMAGE_ONLY',
+    label=_('Show image only'),
+    id='field-dwr-image-only',
+    options=[{'value': 'false', 'text': _('No')}, {'value': 'true', 'text': _('Yes')}],
+    selected='true' if h.dwr_theme_home_modal_image_only() else 'false') }}
+    <p class="form-text text-muted">
+      {{ _('Shows just the popup image, at 80%% of the screen, with no text or buttons. The image links to the External URL when one is set.') }}
+    </p>
+
+    {% set images = h.dwr_theme_home_modal_images() %}
+    <div class="form-group control-medium">
+      <label class="form-label" for="field-dwr-images">{{ _('More images (slideshow)') }}</label>
+      {% if images %}
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+          {% for image in images %}
+            <img src="{{ h.url_for_static_or_external(image) }}" alt="" style="height: 64px; border-radius: 4px;">
+          {% endfor %}
+        </div>
+      {% endif %}
+      <textarea id="field-dwr-images" class="form-control" name="DWR_IMAGES" rows="4" placeholder="https://example.com/image-2.jpg">{{ images | join('\n') }}</textarea>
+      {% if h.uploads_enabled() %}
+        <input id="field-dwr-images-upload" class="form-control" style="margin-top: 8px;" type="file" name="DWR_IMAGES_UPLOAD" multiple accept="image/png,image/jpeg,image/gif,image/webp">
+      {% endif %}
+      {% if errors.DWR_IMAGES_UPLOAD %}
+        <span class="error-block">{{ errors.DWR_IMAGES_UPLOAD | join(', ') }}</span>
+      {% endif %}
+      <p class="form-text text-muted">
+        {{ _('Shown after the event image as a slideshow that moves on every 5 seconds. One image URL per line; delete a line to remove that image.') }}
+        {% if h.uploads_enabled() %}{{ _('Uploaded files are added to the list.') }}{% endif %}
+      </p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
+    </div>
+</form>
+{% endblock %}

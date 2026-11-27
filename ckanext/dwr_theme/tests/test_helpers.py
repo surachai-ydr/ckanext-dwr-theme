@@ -80,6 +80,54 @@ class TestHomeModal:
         monkeypatch.setitem(ckan_config, "ckanext.dwr_theme.home_modal_text", "New")
         assert helpers.dwr_theme_home_modal()["key"] != before
 
+    def _gdc_popup(self, monkeypatch, conf):
+        import ckan.plugins.toolkit as tk
+
+        monkeypatch.setattr(helpers, "dwr_theme_gdc_enabled", lambda: True)
+        monkeypatch.setitem(tk.h, "thai_gdc_get_conf_group", lambda group: conf)
+
+    def test_gdc_popup(self, monkeypatch):
+        self._gdc_popup(monkeypatch, {
+            "EVENT_PUBLIC": "True",
+            "EVENT_IMAGE": "/uploads/admin/event.png",
+            "EVENT_URL": "https://example.com",
+            "EVENT_TEXT": "More",
+        })
+        modal = helpers.dwr_theme_home_modal()
+        assert modal["images"] == ["/uploads/admin/event.png"]
+        assert modal["link_url"] == "https://example.com"
+        assert modal["link_text"] == "More"
+        assert modal["no_text"]
+        assert "image_only" not in modal
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_image_only", "true")
+    def test_gdc_popup_image_only(self, monkeypatch):
+        self._gdc_popup(monkeypatch, {"EVENT_PUBLIC": "True", "EVENT_IMAGE": "/x.png"})
+        assert helpers.dwr_theme_home_modal()["image_only"]
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal", "true")
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_image_only", "true")
+    def test_image_only_needs_an_image(self):
+        assert "image_only" not in helpers.dwr_theme_home_modal()
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal", "true")
+    def test_unpublished_gdc_popup_falls_back_to_config(self, monkeypatch):
+        self._gdc_popup(monkeypatch, {"EVENT_PUBLIC": "False", "EVENT_IMAGE": "/x.png"})
+        modal = helpers.dwr_theme_home_modal()
+        assert modal["images"] == []
+        assert "image_only" not in modal
+
+    @pytest.mark.ckan_config("ckanext.dwr_theme.home_modal_images", "/b.png\n/a.png\n/b.png")
+    def test_extra_images_follow_the_main_one(self, monkeypatch):
+        self._gdc_popup(monkeypatch, {"EVENT_PUBLIC": "True", "EVENT_IMAGE": "/a.png"})
+        assert helpers.dwr_theme_home_modal()["images"] == ["/a.png", "/b.png"]
+
+    def test_key_changes_with_images(self, ckan_config, monkeypatch):
+        self._gdc_popup(monkeypatch, {"EVENT_PUBLIC": "True", "EVENT_IMAGE": "/a.png"})
+        before = helpers.dwr_theme_home_modal()["key"]
+        monkeypatch.setitem(ckan_config, "ckanext.dwr_theme.home_modal_images", "/b.png")
+        assert helpers.dwr_theme_home_modal()["key"] != before
+
 
 def test_version_matches_installed_package():
     from importlib import metadata

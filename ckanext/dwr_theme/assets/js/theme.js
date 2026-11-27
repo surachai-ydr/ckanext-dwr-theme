@@ -160,6 +160,10 @@ ckan.module("dwr-theme-home-modal", function ($) {
       this.el.on("close", this._onClose);
       this.el.on("click", this._onBackdropClick);
       dialog.showModal();
+      // showModal() focuses the first button (Close), which then looks
+      // selected; focus the dialog itself so Tab still reaches the button.
+      dialog.setAttribute("tabindex", "-1");
+      dialog.focus();
       write("sessionStorage", SEEN_KEY, key);
     },
 
@@ -174,6 +178,77 @@ ckan.module("dwr-theme-home-modal", function ($) {
       if (event.target === this.el[0]) {
         this.el[0].close();
       }
+    },
+  };
+});
+
+/* Image slideshow in the homepage dialog: shows one .dwr-slides__slide at a
+ * time and moves on every `interval` ms, pausing while hovered or focused.
+ * Buttons with data-slide="prev" / "next" / <index> move to a slide.
+ *
+ * Usage: <div data-module="dwr-theme-slides" data-module-interval="5000">
+ *          <div class="dwr-slides__slide is-active">...</div> ...
+ *          <button type="button" class="dwr-slides__dot" data-slide="0"></button> ...
+ *        </div>
+ */
+ckan.module("dwr-theme-slides", function ($) {
+  "use strict";
+
+  return {
+    options: {
+      interval: 5000,
+    },
+
+    initialize: function () {
+      $.proxyAll(this, /_on/);
+      this.slides = this.el.find(".dwr-slides__slide");
+      this.dots = this.el.find(".dwr-slides__dot");
+      this.index = 0;
+      this.paused = false;
+      this.el.on("click", "[data-slide]", this._onNavClick);
+      this.el.on("mouseenter focusin", this._onPause);
+      this.el.on("mouseleave focusout", this._onResume);
+      this._start();
+    },
+
+    _start: function () {
+      window.clearInterval(this.timer);
+      this.timer = window.setInterval(this._onTick, Number(this.options.interval) || 5000);
+    },
+
+    _show: function (index) {
+      var count = this.slides.length;
+      this.index = (index + count) % count;
+      this.slides.removeClass("is-active").eq(this.index).addClass("is-active");
+      this.dots.removeAttr("aria-current").eq(this.index).attr("aria-current", "true");
+    },
+
+    _onTick: function () {
+      // Skip while hovered/focused, or while the dialog is closed or the tab hidden
+      if (!this.paused && !document.hidden && this.el.closest("dialog[open]").length) {
+        this._show(this.index + 1);
+      }
+    },
+
+    _onNavClick: function (event) {
+      var target = event.currentTarget.getAttribute("data-slide");
+      if (target === "prev") {
+        this._show(this.index - 1);
+      } else if (target === "next") {
+        this._show(this.index + 1);
+      } else {
+        this._show(parseInt(target, 10));
+      }
+      // Restart the countdown so a manual move gets a full interval
+      this._start();
+    },
+
+    _onPause: function () {
+      this.paused = true;
+    },
+
+    _onResume: function () {
+      this.paused = false;
     },
   };
 });

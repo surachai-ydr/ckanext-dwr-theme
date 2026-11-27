@@ -36,6 +36,8 @@ class DwrThemePlugin(plugins.SingletonPlugin, DefaultTranslation):
         for field in ("hero_title", "hero_subtitle", "footer_name"):
             for lang in helpers.LANGUAGES:
                 schema[f"ckanext.dwr_theme.{field}_{lang}"] = [ignore_missing, unicode_safe]
+        for key in ("home_modal_image_only", "home_modal_images"):
+            schema[f"ckanext.dwr_theme.{key}"] = [ignore_missing, unicode_safe]
         # The upload/clear fields are consumed by the chained config_option_update
         for option, fields in action.LOGO_FIELDS.items():
             for key in (option, *fields):

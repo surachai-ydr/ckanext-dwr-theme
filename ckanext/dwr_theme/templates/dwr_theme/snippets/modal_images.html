@@ -1,0 +1,34 @@
+{#
+  The homepage dialog's image, or a slideshow when there are several
+  (driven by the dwr-theme-slides JS module).
+
+  images   - list of image URLs
+  link_url - optional URL every image links to
+  alt      - optional alt text for the images
+
+  The buttons are type="button": the dialog's form has method="dialog", so
+  a submit button would close it.
+#}
+{% macro slide(image, index) %}
+  {% set img %}<img class="dwr-modal__image" src="{{ h.url_for_static_or_external(image) }}" alt="{{ alt or '' }}"{% if index %} loading="lazy"{% endif %}>{% endset %}
+  {% if link_url %}
+    <a class="dwr-slides__slide{% if not index %} is-active{% endif %}" href="{{ h.url_for_static_or_external(link_url) }}">{{ img }}</a>
+  {% else %}
+    <div class="dwr-slides__slide{% if not index %} is-active{% endif %}">{{ img }}</div>
+  {% endif %}
+{% endmacro %}
+
+{% if images | length > 1 %}
+  <div class="dwr-slides" data-module="dwr-theme-slides" aria-roledescription="carousel">
+    {% for image in images %}{{ slide(image, loop.index0) }}{% endfor %}
+    <button class="dwr-slides__nav dwr-slides__nav--prev" type="button" data-slide="prev" aria-label="{{ _('Previous') }}">&lsaquo;</button>
+    <button class="dwr-slides__nav dwr-slides__nav--next" type="button" data-slide="next" aria-label="{{ _('Next') }}">&rsaquo;</button>
+    <div class="dwr-slides__dots">
+      {% for image in images %}
+        <button class="dwr-slides__dot" type="button" data-slide="{{ loop.index0 }}" aria-label="{{ _('Image {n} of {total}').format(n=loop.index, total=images | length) }}"{% if loop.first %} aria-current="true"{% endif %}></button>
+      {% endfor %}
+    </div>
+  </div>
+{% elif images %}
+  <div class="dwr-slides">{{ slide(images[0], 0) }}</div>
+{% endif %}

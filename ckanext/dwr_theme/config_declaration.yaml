@@ -109,6 +109,19 @@ groups:
           Show a welcome/announcement dialog when the homepage is opened. It is
           shown once per browser session; visitors can tick "Don't show this
           again", which lasts until the dialog's content changes.
+      - key: ckanext.dwr_theme.home_modal_image_only
+        type: bool
+        default: false
+        description: |
+          Show only the dialog's image (no text or buttons), scaled to 80% of
+          the screen, e.g. a tribute image. Applies to thai_gdc's popup too;
+          ignored when there is no image. Editable on thai_gdc's popup page (/ckan-admin/popup-edit).
+      - key: ckanext.dwr_theme.home_modal_images
+        description: |
+          More dialog images, one URL per line, shown after the main image as
+          an auto-advancing slideshow. Applies to thai_gdc's popup too.
+          Editable on thai_gdc's popup page (/ckan-admin/popup-edit).
+        example: /uploads/admin/tribute-2.jpg
       - key: ckanext.dwr_theme.home_modal_title
         description: Dialog heading. Defaults to a translated welcome message.
         example: ประกาศ

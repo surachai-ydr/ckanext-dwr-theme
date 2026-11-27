@@ -171,20 +171,65 @@ def dwr_theme_privacy_policy_url() -> str:
 # Homepage content
 
 
-def dwr_theme_home_modal() -> dict[str, str] | None:
-    """Homepage dialog settings, or None when ``ckanext.dwr_theme.home_modal`` is off.
+def _gdc_event_popup() -> dict[str, str] | None:
+    """thai_gdc's popup (Sysadmin settings -> ป็อปอัพ), when published with an image.
 
-    Empty title/text fall back to translated defaults in the template. ``key``
-    changes whenever the content does, so a visitor's "Don't show this again"
-    only applies to the content they dismissed.
+    thai_gdc renders it from its own home/index.html, which this theme's
+    homepage replaces, so it is shown through the dwr dialog instead.
     """
-    if not tk.asbool(tk.config.get("ckanext.dwr_theme.home_modal")):
+    if not dwr_theme_gdc_enabled():
         return None
-    modal = {
-        field: (tk.config.get(f"ckanext.dwr_theme.home_modal_{field}") or "").strip()
-        for field in ("title", "text", "image", "link_url", "link_text")
+    conf = tk.h.thai_gdc_get_conf_group("EVENT") or {}
+    image = (conf.get("EVENT_IMAGE") or "").strip()
+    if conf.get("EVENT_PUBLIC") != "True" or not image:
+        return None
+    return {
+        "image": image,
+        "link_url": (conf.get("EVENT_URL") or "").strip(),
+        "link_text": (conf.get("EVENT_TEXT") or "").strip(),
+        "no_text": "true",
     }
-    content = "\n".join(modal[field] for field in sorted(modal))
+
+
+def dwr_theme_home_modal_images() -> list[str]:
+    """Extra slideshow images (``ckanext.dwr_theme.home_modal_images``), one URL per line."""
+    return (tk.config.get("ckanext.dwr_theme.home_modal_images") or "").split()
+
+
+def dwr_theme_home_modal_image_only() -> bool:
+    """``ckanext.dwr_theme.home_modal_image_only``; empty (never saved) counts as off."""
+    return tk.asbool(tk.config.get("ckanext.dwr_theme.home_modal_image_only") or False)
+
+
+def dwr_theme_home_modal() -> dict[str, Any] | None:
+    """Homepage dialog settings, or None when there is nothing to show.
+
+    thai_gdc's popup (edited on /ckan-admin/popup-edit) wins when published;
+    otherwise ``ckanext.dwr_theme.home_modal`` and its options are used.
+    ``images`` is the main image followed by
+    ``ckanext.dwr_theme.home_modal_images``, shown as a slideshow when there
+    are several. ``image_only`` (``ckanext.dwr_theme.home_modal_image_only``,
+    needs an image) shows just the images, near full screen. Empty title/text
+    fall back to translated defaults in the template. ``key`` changes whenever the
+    content does, so a visitor's "Don't show this again" only applies to the
+    content they dismissed.
+    """
+    modal = _gdc_event_popup()
+    if modal is None:
+        if not tk.asbool(tk.config.get("ckanext.dwr_theme.home_modal")):
+            return None
+        modal = {
+            field: (tk.config.get(f"ckanext.dwr_theme.home_modal_{field}") or "").strip()
+            for field in ("title", "text", "image", "link_url", "link_text")
+        }
+    images = [modal.pop("image")] + dwr_theme_home_modal_images()
+    modal["images"] = list(dict.fromkeys(image for image in images if image))
+    if modal["images"] and dwr_theme_home_modal_image_only():
+        modal["image_only"] = "true"
+    content = "\n".join(
+        "\n".join(value) if isinstance(value, list) else value
+        for _field, value in sorted(modal.items())
+    )
     modal["key"] = hashlib.sha1(content.encode("utf-8")).hexdigest()[:12]
     return modal
 
@@ -294,6 +339,8 @@ def get_helpers() -> dict[str, Callable[..., Any]]:
         "dwr_theme_current_year": dwr_theme_current_year,
         "dwr_theme_privacy_policy_url": dwr_theme_privacy_policy_url,
         "dwr_theme_home_modal": dwr_theme_home_modal,
+        "dwr_theme_home_modal_image_only": dwr_theme_home_modal_image_only,
+        "dwr_theme_home_modal_images": dwr_theme_home_modal_images,
         "dwr_theme_recent_datasets": dwr_theme_recent_datasets,
         "dwr_theme_popular_tags": dwr_theme_popular_tags,
         "dwr_theme_home_groups": dwr_theme_home_groups,

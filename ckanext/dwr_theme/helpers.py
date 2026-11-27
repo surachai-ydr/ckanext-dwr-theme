@@ -10,6 +10,7 @@ from typing import Any, Callable
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as tk
 from ckan.lib.search import SearchError
+from markupsafe import Markup
 
 log = logging.getLogger(__name__)
 
@@ -325,8 +326,33 @@ def dwr_theme_initials(name: str) -> str:
     return "".join(word[0] for word in words[:2]).upper() or "?"
 
 
+# Sysadmin settings tabs
+
+
+def build_extra_admin_nav() -> Markup:
+    """Core helper override: the extension tabs on /ckan-admin, minus hidden ones.
+
+    Tabs listed in ``ckanext.dwr_theme.hidden_admin_tabs`` (by endpoint, e.g.
+    thai_gdc's banner page, which this theme's homepage does not use) are
+    left out; the pages themselves still work. Unlike core, labels are
+    translated, so English labels such as "Users" follow the site language.
+    """
+    hidden = set(tk.aslist(tk.config.get("ckanext.dwr_theme.hidden_admin_tabs")))
+    output = Markup("")
+    for endpoint, tab in (tk.config.get("ckan.admin_tabs") or {}).items():
+        if endpoint in hidden:
+            continue
+        label = tk._(tab["label"])
+        if tab.get("icon"):
+            output += tk.h.build_nav_icon(endpoint, label, icon=tab["icon"])
+        else:
+            output += tk.h.build_nav(endpoint, label)
+    return output
+
+
 def get_helpers() -> dict[str, Callable[..., Any]]:
     return {
+        "build_extra_admin_nav": build_extra_admin_nav,
         "dwr_theme_greeting": dwr_theme_greeting,
         "dwr_theme_show_dataset_count": dwr_theme_show_dataset_count,
         "dwr_theme_dataset_count": dwr_theme_dataset_count,

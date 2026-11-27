@@ -1,0 +1,166 @@
+{% extends "admin/base.html" %}
+
+{#
+  Sysadmin user management (Sysadmin settings -> Users), see user_admin.py.
+  Every action is its own small POST form; the hidden q/state/page fields
+  bring the sysadmin back to the same list afterwards.
+#}
+
+{% block subtitle %}{{ _('Users') }} - {{ super() }}{% endblock %}
+
+{% macro keep_list() %}
+  {{ h.csrf_input() }}
+  <input type="hidden" name="q" value="{{ q }}">
+  <input type="hidden" name="state" value="{{ state }}">
+  <input type="hidden" name="page" value="{{ page.page }}">
+{% endmacro %}
+
+{% macro role_options(selected=None, with_remove=False) %}
+  {% for role in roles %}
+    <option value="{{ role }}"{% if role == selected %} selected{% endif %}>{{ _(role | capitalize) }}</option>
+  {% endfor %}
+  {% if with_remove %}<option value="">{{ _('Remove') }}</option>{% endif %}
+{% endmacro %}
+
+{% block primary_content_inner %}
+<div class="dwr-users">
+  <form class="dwr-users__search" method="get" action="{{ h.url_for('dwr_user_admin.index') }}">
+    <input class="form-control" type="search" name="q" value="{{ q }}" placeholder="{{ _('Search name, full name or email') }}" aria-label="{{ _('Search users') }}">
+    <select class="form-select form-control" name="state" aria-label="{{ _('State') }}">
+      <option value="">{{ _('All states') }}</option>
+      {% for s in states %}
+        <option value="{{ s }}"{% if s == state %} selected{% endif %}>{{ _(s | capitalize) }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">{{ _('Search') }}</button>
+  </form>
+
+  <details class="dwr-users__create">
+    <summary class="btn btn-default btn-secondary">{{ _('Create user') }}</summary>
+    <form method="post" action="{{ h.url_for('dwr_user_admin.create') }}" class="dwr-users__create-form" autocomplete="off">
+      {{ keep_list() }}
+      <label>{{ _('Username') }} <input class="form-control" name="name" required pattern="[a-z0-9_\-]{2,100}" title="{{ _('Lowercase letters, numbers, - and _ only') }}"></label>
+      <label>{{ _('Full name') }} <input class="form-control" name="fullname"></label>
+      <label>{{ _('Email') }} <input class="form-control" type="email" name="email" required></label>
+      <label>{{ _('Password') }} <input class="form-control" type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+      <label>{{ _('Organization') }}
+        <select class="form-select form-control" name="organization">
+          <option value="">{{ _('None') }}</option>
+          {% for org in organizations %}<option value="{{ org.id }}">{{ org.title or org.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>{{ _('Role') }}
+        <select class="form-select form-control" name="role">{{ role_options('member') }}</select>
+      </label>
+      <div><button class="btn btn-primary" type="submit">{{ _('Create user') }}</button></div>
+    </form>
+  </details>
+
+  <p class="dwr-users__count">{{ ungettext('{n} user', '{n} users', count).format(n=count) }}</p>
+
+  <div class="table-responsive">
+  <table class="table dwr-users__table">
+    <thead>
+      <tr>
+        <th scope="col">{{ _('User') }}</th>
+        <th scope="col">{{ _('Organizations') }}</th>
+        <th scope="col">{{ _('Created') }}</th>
+        <th scope="col"><span class="visually-hidden sr-only">{{ _('Actions') }}</span></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      {% set orgs = memberships.get(user.id, []) %}
+      {% set is_self = user.id == current_user_id %}
+      <tr class="dwr-users__row dwr-users__row--{{ user.state }}">
+        <td>
+          <a href="{{ h.url_for('user.read', id=user.name) }}"><strong>{{ user.fullname or user.name }}</strong></a>
+          {% if user.sysadmin %}<span class="dwr-users__badge dwr-users__badge--sysadmin">{{ _('Sysadmin') }}</span>{% endif %}
+          {% if user.state != 'active' %}<span class="dwr-users__badge dwr-users__badge--{{ user.state }}">{{ _(user.state | capitalize) }}</span>{% endif %}
+          <div class="dwr-users__meta">{{ user.name }}{% if user.email %} · {{ user.email }}{% endif %}</div>
+        </td>
+        <td>
+          {% for org in orgs %}
+            <div class="dwr-users__org">{{ org.title }} <span class="dwr-users__role">{{ _(org.role | capitalize) }}</span></div>
+          {% else %}
+            <span class="dwr-users__meta">—</span>
+          {% endfor %}
+        </td>
+        <td class="dwr-users__meta">{{ h.render_datetime(user.created) }}</td>
+        <td class="dwr-users__actions">
+          <details class="dwr-users__manage">
+            <summary class="btn btn-default btn-secondary btn-sm">{{ _('Manage') }}</summary>
+            <div class="dwr-users__panel">
+              <a class="btn btn-default btn-secondary btn-sm" href="{{ h.url_for('user.edit', id=user.name) }}">{{ _('Edit profile / password') }}</a>
+
+              {% if not is_self and user.state == 'active' %}
+                <form method="post" action="{{ h.url_for('dwr_user_admin.sysadmin', user_id=user.id) }}">
+                  {{ keep_list() }}
+                  <input type="hidden" name="sysadmin" value="{{ 'false' if user.sysadmin else 'true' }}">
+                  <button class="btn btn-default btn-secondary btn-sm" type="submit">
+                    {{ _('Remove sysadmin') if user.sysadmin else _('Make sysadmin') }}
+                  </button>
+                </form>
+              {% endif %}
+
+              <h4>{{ _('Organizations') }}</h4>
+              {% for org in orgs %}
+                <form class="dwr-users__inline" method="post" action="{{ h.url_for('dwr_user_admin.membership', user_id=user.id) }}">
+                  {{ keep_list() }}
+                  <input type="hidden" name="organization" value="{{ org.id }}">
+                  <span>{{ org.title }}</span>
+                  <select class="form-select form-control" name="role" aria-label="{{ _('Role in {org}').format(org=org.title) }}">{{ role_options(org.role, with_remove=True) }}</select>
+                  <button class="btn btn-default btn-secondary btn-sm" type="submit">{{ _('Save') }}</button>
+                </form>
+              {% endfor %}
+              {% if organizations %}
+                <form class="dwr-users__inline" method="post" action="{{ h.url_for('dwr_user_admin.membership', user_id=user.id) }}">
+                  {{ keep_list() }}
+                  <select class="form-select form-control" name="organization" aria-label="{{ _('Organization') }}" required>
+                    <option value="">{{ _('Add to organization…') }}</option>
+                    {% for org in organizations %}<option value="{{ org.id }}">{{ org.title or org.name }}</option>{% endfor %}
+                  </select>
+                  <select class="form-select form-control" name="role" aria-label="{{ _('Role') }}">{{ role_options('member') }}</select>
+                  <button class="btn btn-default btn-secondary btn-sm" type="submit">{{ _('Add') }}</button>
+                </form>
+              {% endif %}
+
+              {% if not is_self %}
+                {% if user.state == 'active' %}
+                  <form method="post" action="{{ h.url_for('dwr_user_admin.delete', user_id=user.id) }}" class="dwr-users__danger">
+                    {{ keep_list() }}
+                    <label class="dwr-users__confirm"><input type="checkbox" required> {{ _('Yes, delete {name}').format(name=user.name) }}</label>
+                    <button class="btn btn-danger btn-sm" type="submit">{{ _('Delete user') }}</button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{{ h.url_for('dwr_user_admin.reactivate', user_id=user.id) }}">
+                    {{ keep_list() }}
+                    <button class="btn btn-primary btn-sm" type="submit">{{ _('Reactivate') }}</button>
+                  </form>
+                {% endif %}
+              {% endif %}
+            </div>
+          </details>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">{{ _('No users found.') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+
+  {{ page.pager() }}
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('Users') }}</h2>
+  <div class="module-content">
+    <p>{{ _('Manage every account in one place: search, create, delete or reactivate users, make them sysadmins and set their role in each organization.') }}</p>
+    <p>{{ _('Admins manage an organization and its members, editors add and edit its datasets, members can see its private datasets.') }}</p>
+    <p>{{ _('You cannot delete or demote your own account.') }}</p>
+  </div>
+</div>
+{% endblock %}

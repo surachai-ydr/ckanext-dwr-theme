@@ -978,3 +978,47 @@ fieldset.checkboxes label { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 575.98px) {
   .stages { flex-direction: column; }
 }
+
+
+/* --------------------------------------------------------------------------
+   Sysadmin settings -> Users (admin/dwr_users.html)
+   -------------------------------------------------------------------------- */
+
+.dwr-users__search { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.dwr-users__search input[type="search"] { flex: 1 1 240px; }
+.dwr-users__search select { flex: 0 0 auto; width: auto; }
+.dwr-users__create { margin-bottom: 16px; }
+.dwr-users__create > summary, .dwr-users__manage > summary { list-style: none; display: inline-block; }
+.dwr-users__create > summary::-webkit-details-marker, .dwr-users__manage > summary::-webkit-details-marker { display: none; }
+.dwr-users__create-form {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+  margin-top: 10px; padding: 16px; border: 1px solid var(--dwr-border, #e2e8f0); border-radius: 8px;
+}
+.dwr-users__create-form label { display: flex; flex-direction: column; gap: 4px; margin: 0; font-weight: 600; }
+.dwr-users__create-form > div { display: flex; align-items: flex-end; }
+.dwr-users__count { color: var(--dwr-muted); }
+.dwr-users__table td { vertical-align: top; }
+.dwr-users__row--deleted { opacity: .65; }
+.dwr-users__meta { color: var(--dwr-muted); font-size: calc(13px * var(--dwr-font-scale)); }
+.dwr-users__badge {
+  display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; vertical-align: middle; background: #e2e8f0; color: #334155;
+}
+.dwr-users__badge--sysadmin { background: var(--dwr-primary-soft); color: var(--dwr-primary); }
+.dwr-users__badge--deleted { background: #fee2e2; color: #991b1b; }
+.dwr-users__badge--pending { background: #fef3c7; color: #92400e; }
+.dwr-users__org { white-space: nowrap; }
+.dwr-users__role { color: var(--dwr-muted); font-size: 12px; }
+.dwr-users__actions { text-align: right; width: 1%; white-space: nowrap; }
+.dwr-users__manage[open] > summary { margin-bottom: 8px; }
+.dwr-users__panel {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  min-width: 320px; padding: 12px; text-align: left; white-space: normal;
+  border: 1px solid var(--dwr-border, #e2e8f0); border-radius: 8px; background: var(--dwr-surface, #fff);
+}
+.dwr-users__panel h4 { margin: 6px 0 0; font-size: 14px; font-weight: 700; }
+.dwr-users__panel form { margin: 0; }
+.dwr-users__inline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.dwr-users__inline select { width: auto; }
+.dwr-users__danger { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid var(--dwr-border, #e2e8f0); }
+.dwr-users__confirm { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; }

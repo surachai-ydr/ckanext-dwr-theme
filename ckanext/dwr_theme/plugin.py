@@ -28,6 +28,7 @@ class DwrThemePlugin(plugins.SingletonPlugin, DefaultTranslation):
         tk.add_template_directory(config_, "templates")
         tk.add_public_directory(config_, "public")
         tk.add_resource("assets", "dwr-theme")
+        tk.add_ckan_admin_tab(config_, "dwr_user_admin.index", "Users", icon="users")
 
     def update_config_schema(self, schema: dict[str, Any]):
         # Lets sysadmins edit the homepage hero and footer on /ckan-admin/config
